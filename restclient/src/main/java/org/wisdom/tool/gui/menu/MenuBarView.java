@@ -228,9 +228,9 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         mnHelp.add(miContent);
         mnHelp.add(miIssue);
         mnHelp.addSeparator();
-        mnHelp.add(miDonate);
-        mnHelp.addSeparator();
-        mnHelp.add(miAbout);
+//        mnHelp.add(miDonate);
+//        mnHelp.addSeparator();
+//        mnHelp.add(miAbout);
 
         ad = new AboutDialog();
         dd = new DonateDialog();

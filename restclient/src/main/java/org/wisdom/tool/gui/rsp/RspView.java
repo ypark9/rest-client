@@ -16,9 +16,11 @@
 package org.wisdom.tool.gui.rsp;
 
 import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -52,7 +54,9 @@ public class RspView extends JPanel
     private RspTextPanel pnlBody = null;
     
     private RspTextPanel pnlRaw = null;
-    
+
+    private RspEditorPanel1 pnlPreview = null;
+
     private JTabbedPane tp = null;
 
     public RspView()
@@ -103,6 +107,9 @@ public class RspView extends JPanel
         pnlRaw = new RspTextPanel(RESTConst.RAW);
         tp.add(RESTConst.RAW, pnlRaw);
 
+        pnlPreview = new RspEditorPanel1(RESTConst.BODY);
+        tp.add(RESTConst.PREVIEW, pnlPreview);
+
         this.add(tp, BorderLayout.CENTER);
         this.setBorder(BorderFactory.createTitledBorder(null, RESTConst.HTTP_RESPONSE, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
     }
@@ -120,6 +127,7 @@ public class RspView extends JPanel
         txtFldStat.setText(StringUtils.EMPTY);
         pnlRaw.getTxtAra().setText(StringUtils.EMPTY);
         pnlBody.getTxtAra().setText(StringUtils.EMPTY);
+        pnlPreview.setText("");
         pnlHdr.getTabMdl().clear();
     }
 
@@ -141,6 +149,7 @@ public class RspView extends JPanel
         txtFldStat.setText(rsp.getStatus());
         pnlRaw.getTxtAra().setText(rsp.getRawTxt());
         pnlBody.getTxtAra().setText(rsp.getBody());
+        pnlPreview.setBodyHTML(rsp.getBody());
 
         // Set headers
         pnlHdr.getTabMdl().clear();

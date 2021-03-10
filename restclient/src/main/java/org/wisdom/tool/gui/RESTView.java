@@ -24,6 +24,7 @@ import javax.swing.border.TitledBorder;
 
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.hist.HistView;
+import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.gui.rsp.RspView;
 
@@ -41,6 +42,8 @@ public class RESTView extends JPanel
 
     private static RESTView view = null;
     
+    private EasyView vEasy = null;
+
     private ReqView vReq = null;
 
     private RspView vRsp = null;
@@ -96,11 +99,14 @@ public class RESTView extends JPanel
         this.setLayout(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
         this.setBorder(BorderFactory.createEmptyBorder(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
 
+        vEasy = new EasyView();
         vReq = new ReqView();
         vRsp = new RspView();
         vHist = new HistView();
 
         tp = new JTabbedPane();
+        //Easy gui
+        tp.add(RESTConst.EASY, vEasy);
         tp.add(RESTConst.REQUEST, vReq);
         tp.add(RESTConst.RESPONSE, vRsp);
         tp.add(RESTConst.HIST, vHist);

@@ -25,7 +25,7 @@ package org.wisdom.tool.constant;
 */
 public class RESTConst
 {
-    public static final String REST_CLIENT_VERSION = "Wisdom RESTClient V1.2";
+    public static final String REST_CLIENT_VERSION = "ArtiosCAD API Tester V1.0";
 
     public static final String WORK = "work";
 
@@ -115,6 +115,10 @@ public class RESTConst
 
     public static final String METHOD = "HTTP Method";
 
+    public static final String CADTASK = "Cad API Task";
+
+    public static final String ESVG = "ESVG";
+
     public static final String BODY = "Body";
 
     public static final String RAW = "Raw";
@@ -138,6 +142,10 @@ public class RESTConst
     public static final String CHARSET = "Charset";
 
     public static final String BODY_TYPE = "Body-Type";
+
+    public static final String PREVIEW = "Web Preview";
+
+    public static final String FILE_PREVIEW = "File Preview";
 
     public static final String STRING = "String";
 
@@ -166,6 +174,7 @@ public class RESTConst
     public static final String ID = "ID";
 
     public static final String REQUEST = "Request";
+    public static final String EASY = "EASY";
 
     public static final String RESPONSE = "Response";
 
