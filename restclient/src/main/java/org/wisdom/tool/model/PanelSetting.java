@@ -1,5 +1,7 @@
 package org.wisdom.tool.model;
 
+import org.apache.logging.log4j.core.jmx.Server;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -37,14 +39,27 @@ public class PanelSetting {
 
     // GUI helper
     public JPanel makePanelForSettings(){
-        JPanel b1 = new JPanel();
-        b1.setMaximumSize(new Dimension((int) b1.getMaximumSize().getWidth(), 25));
-        JLabel lbServerType = new JLabel("Server Type");
-        JComboBox<type> cbServerType = new JComboBox<type>(type.values());
-        cbServerType.setToolTipText("ServerType");
-        cbServerType.setPreferredSize(new Dimension(150, 20));
-        b1.add(lbServerType);
-        b1.add(cbServerType);
+        JPanel b1 = null;
+        if(type.equals(ConfigType.INPUT)) {
+            b1 = new JPanel();
+            b1.setMaximumSize(new Dimension((int) b1.getMaximumSize().getWidth(), 25));
+            JLabel lbServerType = new JLabel(this.type.name());
+            JComboBox<CadInputType> cbServerType = new JComboBox<CadInputType>(CadInputType.values());
+            cbServerType.setToolTipText(this.type.name());
+            cbServerType.setPreferredSize(new Dimension(150, 20));
+            b1.add(lbServerType);
+            b1.add(cbServerType);
+        }
+        else if(type.equals(ConfigType.SERVER)) {
+            b1 = new JPanel();
+            b1.setMaximumSize(new Dimension((int) b1.getMaximumSize().getWidth(), 25));
+            JLabel lbServerType = new JLabel(this.type.name());
+            JComboBox<ServerType> cbServerType = new JComboBox<ServerType>(ServerType.values());
+            cbServerType.setToolTipText(this.type.name());
+            cbServerType.setPreferredSize(new Dimension(150, 20));
+            b1.add(lbServerType);
+            b1.add(cbServerType);
+        }
 
         return b1;
     }

@@ -25,5 +25,4 @@ public enum ConfigType {
     {
         this.mid = mid;
     }
-
 }

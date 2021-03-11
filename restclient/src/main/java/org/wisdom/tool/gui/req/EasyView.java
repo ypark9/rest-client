@@ -5,10 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.util.BoxLayoutTemplate;
 import org.wisdom.tool.gui.util.UIUtil;
-import org.wisdom.tool.model.CadTask;
-import org.wisdom.tool.model.ConfigType;
-import org.wisdom.tool.model.HttpReq;
-import org.wisdom.tool.model.ServerType;
+import org.wisdom.tool.model.*;
 import org.wisdom.tool.thread.RESTThd;
 
 import javax.swing.*;
@@ -144,12 +141,17 @@ public class EasyView extends JPanel implements ActionListener {
         pnlTask.add(taskOptPanel, BorderLayout.CENTER);
         pnlTask.add(btnStart, BorderLayout.EAST);
 
+        //construct panal Setting to pass
+        PanelSetting serverPanelSetup = new PanelSetting( "", "WebCenter", "ID","password", ConfigType.SERVER);
+        PanelSetting inputPanelSetup = new PanelSetting( "Input", "WCDocument", "Project","Document", ConfigType.INPUT);
+        PanelSetting outputPanelSetup = new PanelSetting( "Output", "Location", "Folder Path","Filename", ConfigType.OUTPUT);
+
         //Server setting panel
-        pnlServer = new BoxLayoutTemplate(ConfigType.SERVER);
+        pnlServer = new BoxLayoutTemplate(serverPanelSetup);
         //Input panel
-        pnlInput = new BoxLayoutTemplate(ConfigType.INPUT);
+        pnlInput = new BoxLayoutTemplate(inputPanelSetup);
         //output panel
-        pnlOutput = new BoxLayoutTemplate(ConfigType.OUTPUT);
+        pnlOutput = new BoxLayoutTemplate(outputPanelSetup);
 
         this.add(pnlTask, BorderLayout.NORTH);
         this.add(pnlInput, BorderLayout.WEST);
