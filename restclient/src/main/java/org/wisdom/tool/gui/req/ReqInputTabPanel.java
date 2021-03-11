@@ -100,10 +100,10 @@ public class ReqInputTabPanel extends JPanel implements ActionListener {
         lbDocName = new JLabel("Document Name:");
 
         cbInputType = new JComboBox<CadInputType>(CadInputType.values());
-        txtFldProjectName = new JTextField(RESTConst.FIELD_PATH_SIZE);
-        txtFldDocName = new JTextField(RESTConst.FIELD_PATH_SIZE);
+        txtFldProjectName = new JTextField(RESTConst.FIELD_SIZE);
+        txtFldDocName = new JTextField(RESTConst.FIELD_SIZE);
 
-        JPanel wcPanel = new JPanel(new BorderLayout(RESTConst.BORDER_WIDTH, 0));
+        JPanel wcPanel = new JPanel(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
         JPanel wcProjectPanel = new JPanel();
         JPanel wcDocumentPanel = new JPanel();
         JPanel inputTypePanel = new JPanel();

@@ -1,11 +1,11 @@
 package org.wisdom.tool.model;
 
-public enum CadInputType {
-    WCDocument(0);
+public enum ConfigType {
+    DEFAULT(0), INPUT(1), OUTPUT(2), SERVER(3);
 
     private int mid;
 
-    private CadInputType(int mid)
+    private ConfigType(int mid)
     {
         this.mid = mid;
     }
@@ -24,15 +24,6 @@ public enum CadInputType {
     public void setMid(int mid)
     {
         this.mid = mid;
-    }
-
-    public String GetName(int mid){
-        String retString = "";
-        switch (mid){
-            case 0:
-                return "WCDocument";
-        }
-        return retString;
     }
 
 }

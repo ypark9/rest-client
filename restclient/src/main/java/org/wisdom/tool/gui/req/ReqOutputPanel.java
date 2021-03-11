@@ -1,7 +1,6 @@
 package org.wisdom.tool.gui.req;
 
 import org.wisdom.tool.constant.RESTConst;
-import org.wisdom.tool.model.CadInputType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,10 +12,10 @@ import java.awt.event.MouseEvent;
 public class ReqOutputPanel extends JPanel implements ActionListener {
     private static final long serialVersionUID = 5120996065049850894L;
 
-    private JLabel lbProjectName = null;
-    private JLabel lbInputType = null;
+    private JLabel lbOutPutFilename = null;
+    private JLabel lbOutputFolderPath = null;
 
-    private JLabel lbDocName = null;
+    private JLabel lbErrorLog = null;
 
     private JLabel lblCharset = null;
 
@@ -74,9 +73,9 @@ public class ReqOutputPanel extends JPanel implements ActionListener {
             this.popup(e);
         }
     };
-    private JComboBox<CadInputType> cbInputType;
-    private JTextField txtFldProjectName;
-    private JTextField txtFldDocName;
+    private JTextField txtFldFolderPath;
+    private JTextField txtFldFileName;
+    private JTextField txtFldErrorLogPath;
 
     public ReqOutputPanel()
     {
@@ -95,31 +94,33 @@ public class ReqOutputPanel extends JPanel implements ActionListener {
     {
         this.setLayout(new BorderLayout(RESTConst.BORDER_WIDTH, 0));
 
-        lbInputType = new JLabel("Input Type:");
-        lbProjectName = new JLabel("Project Name:");
-        lbDocName = new JLabel("Document Name:");
+        lbOutputFolderPath = new JLabel("Output Folder Path:");
+        lbOutPutFilename = new JLabel("Output Filename:");
+        lbErrorLog = new JLabel("Error Log Path:");
 
-        cbInputType = new JComboBox<CadInputType>(CadInputType.values());
-        txtFldProjectName = new JTextField(RESTConst.FIELD_PATH_SIZE);
-        txtFldDocName = new JTextField(RESTConst.FIELD_PATH_SIZE);
+        txtFldFolderPath = new JTextField(RESTConst.FIELD_PATH_SIZE);
+        txtFldFileName = new JTextField(RESTConst.FIELD_PATH_SIZE);
+        txtFldErrorLogPath = new JTextField(RESTConst.FIELD_PATH_SIZE);
 
-        JPanel wcPanel = new JPanel(new BorderLayout(RESTConst.BORDER_WIDTH, 0));
-        JPanel wcProjectPanel = new JPanel();
-        JPanel wcDocumentPanel = new JPanel();
-        JPanel inputTypePanel = new JPanel();
+        JPanel outputPanel = new JPanel(new BorderLayout(RESTConst.BORDER_WIDTH, 0));
+        JPanel outputFolderPanel = new JPanel();
+        JPanel outputFilePanel = new JPanel();
+        JPanel errorLogPanel = new JPanel();
 
-        inputTypePanel.add(lbInputType);
-        inputTypePanel.add(cbInputType);
-        wcProjectPanel.add(lbProjectName);
-        wcProjectPanel.add(txtFldProjectName);
-        wcDocumentPanel.add(lbDocName);
-        wcDocumentPanel.add(txtFldDocName);
+        outputFolderPanel.add(lbOutputFolderPath);
+        outputFolderPanel.add(txtFldFolderPath);
 
-        wcPanel.add(wcProjectPanel, BorderLayout.NORTH);
-        wcPanel.add(wcDocumentPanel, BorderLayout.CENTER);
+        outputFilePanel.add(lbOutPutFilename);
+        outputFilePanel.add(txtFldFileName);
 
-        this.add(inputTypePanel, BorderLayout.NORTH);
-        this.add(wcPanel, BorderLayout.CENTER);
+        errorLogPanel.add(lbErrorLog);
+        errorLogPanel.add(txtFldErrorLogPath);
+
+        outputPanel.add(outputFolderPanel, BorderLayout.NORTH);
+        outputPanel.add(outputFilePanel, BorderLayout.CENTER);
+        outputPanel.add(errorLogPanel, BorderLayout.SOUTH);
+
+        this.add(outputPanel, BorderLayout.NORTH);
 
         miFmt = new JMenuItem(RESTConst.FORMAT);
         miFmt.setName(RESTConst.FORMAT);

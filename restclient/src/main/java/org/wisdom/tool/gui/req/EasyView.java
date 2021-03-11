@@ -3,8 +3,10 @@ package org.wisdom.tool.gui.req;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.constant.RESTConst;
+import org.wisdom.tool.gui.util.BoxLayoutTemplate;
 import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.model.CadTask;
+import org.wisdom.tool.model.ConfigType;
 import org.wisdom.tool.model.HttpReq;
 import org.wisdom.tool.model.ServerType;
 import org.wisdom.tool.thread.RESTThd;
@@ -31,13 +33,7 @@ public class EasyView extends JPanel implements ActionListener {
     private JButton btnStart = null;
 
     private JProgressBar pb = null;
-
-    private ReqInputTabPanel pnlInput = null;
-
-    private ReqTabPanel pnlHdr = null;
-
-    private ReqTabPanel pnlCookie = null;
-
+    
     private Panel pnlTask = null;
     private Panel pnlSeverConfig = null;
     private Panel pnlInputConfig = null;
@@ -48,6 +44,9 @@ public class EasyView extends JPanel implements ActionListener {
     private JTextField wcPath = null;
     private JTextField wcID = null;
     private JTextField wcPassword = null;
+    private BoxLayoutTemplate pnlServer = null;
+    private BoxLayoutTemplate pnlInput = null;
+    private BoxLayoutTemplate pnlOutput = null;
 
     public EasyView()
     {
@@ -82,16 +81,6 @@ public class EasyView extends JPanel implements ActionListener {
     public JButton getBtnStart()
     {
         return btnStart;
-    }
-
-    public ReqTabPanel getPnlHdr()
-    {
-        return pnlHdr;
-    }
-
-    public ReqTabPanel getPnlCookie()
-    {
-        return pnlCookie;
     }
 
     public Panel getPnlTask()
@@ -155,50 +144,19 @@ public class EasyView extends JPanel implements ActionListener {
         pnlTask.add(taskOptPanel, BorderLayout.CENTER);
         pnlTask.add(btnStart, BorderLayout.EAST);
 
-        //SERVER Config
-        pnlSeverConfig = new Panel(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
-        cbServerType = new JComboBox<ServerType>(ServerType.values());
-        JLabel lbServerType = new JLabel("Server Type: ");
-        Panel serverPanel = new Panel(new FlowLayout());
-        serverPanel.add(lbServerType);
-        serverPanel.add(cbServerType);
-        Panel wcPanel = new Panel(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
-        Panel wcConfigPanel = new Panel(new FlowLayout());
-        JLabel lbWebCenter = new JLabel("WebCenter: ");
-        wcPath = new JTextField(RESTConst.FIELD_PATH_SIZE);
-        wcConfigPanel.add(lbWebCenter);
-        wcConfigPanel.add(wcPath);
-        Panel wcUserPanel = new Panel(new FlowLayout());
-        JLabel lbWCUserID = new JLabel("ID: ");
-        wcID = new JTextField(RESTConst.FIELD_SIZE);
-        wcUserPanel.add(lbWCUserID);
-        wcUserPanel.add(wcID);
-        Panel wcPwPanel = new Panel(new FlowLayout());
-        JLabel lbWCPassword = new JLabel("Password: ");
-        wcPassword = new JTextField(RESTConst.FIELD_SIZE);
-        wcPwPanel.add(lbWCPassword);
-        wcPwPanel.add(wcPassword);
-
-        wcPanel.add(wcConfigPanel, BorderLayout.NORTH);
-        wcPanel.add(wcUserPanel, BorderLayout.WEST);
-        wcPanel.add(wcPwPanel, BorderLayout.EAST);
-
-
-        //ADD SUB PANELS TO SERVER PANEL
-        pnlSeverConfig.add(serverPanel, BorderLayout.NORTH);
-        pnlSeverConfig.add(wcPanel, BorderLayout.CENTER);
+        //Server setting panel
+        pnlServer = new BoxLayoutTemplate(ConfigType.SERVER);
+        //Input panel
+        pnlInput = new BoxLayoutTemplate(ConfigType.INPUT);
+        //output panel
+        pnlOutput = new BoxLayoutTemplate(ConfigType.OUTPUT);
 
         this.add(pnlTask, BorderLayout.NORTH);
-        this.add(pnlSeverConfig, BorderLayout.WEST);
+        this.add(pnlInput, BorderLayout.WEST);
+        this.add(pnlOutput, BorderLayout.EAST);
+        this.add(pnlServer, BorderLayout.SOUTH);
 
-        // pane contains Input and Output config
-        JTabbedPane tp = new JTabbedPane();
-        pnlInput = new ReqInputTabPanel();
-        tp.add("Input", pnlInput);
-        pnlHdr = new ReqTabPanel(RESTConst.HEADER);
-        tp.add("Output", pnlHdr);
-        this.add(tp, BorderLayout.SOUTH);
-
+        // Set the window to be visible as the default to be false
         this.setBorder(BorderFactory.createTitledBorder(null, RESTConst.HTTP_REQUEST, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
     }
 
