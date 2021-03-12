@@ -32,6 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -178,6 +180,20 @@ public class RESTUtil
         }
 
         return StringUtils.EMPTY;
+    }
+
+    /**
+     *
+     * @Title: toJson
+     * @Description: Object to json String
+     * @param @param obj
+     * @param @return json String
+     * @return String
+     * @throws JsonProcessingException
+     */
+    public static String toJson(Object obj) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        return ow.writeValueAsString(obj);
     }
 
     /**

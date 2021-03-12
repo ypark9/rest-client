@@ -30,7 +30,7 @@ public enum CadInputType {
         String retString = "";
         switch (mid){
             case 0:
-                return "WCDocument";
+                return "org.wisdom.tool.model.CadJsonWrapper.WCDocument";
         }
         return retString;
     }

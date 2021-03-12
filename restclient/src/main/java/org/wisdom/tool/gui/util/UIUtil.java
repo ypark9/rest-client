@@ -51,6 +51,7 @@ import org.wisdom.tool.cache.RESTCache;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.RESTView;
 import org.wisdom.tool.gui.common.TabModel;
+import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.model.BodyType;
 import org.wisdom.tool.model.Charsets;
@@ -295,6 +296,52 @@ public class UIUtil
         }
         return content;
     }
+
+    public static void CadTaskSubmit(EasyView rv){
+        String url = (String) rv.getCbUrl().getSelectedItem();
+        if (StringUtils.isBlank(url))
+        {
+            return;
+        }
+
+        HttpMethod method = (HttpMethod) rv.getCbMtd().getSelectedItem();
+        String btype = (String) rv.getPnlBody().getCbBodyType().getSelectedItem();
+        String charset = (String) rv.getPnlBody().getCbCharset().getSelectedItem();
+        String ctype = (String) rv.getPnlBody().getCbContentType().getSelectedItem();
+        String body = rv.getPnlBody().getTxtAraBody().getText();
+        String path = rv.getPnlBody().getTxtFldPath().getText();
+
+        try
+        {
+            if (BodyType.FILE.getType().equals(btype))
+            {
+                File f = new File(path);
+                if (f.exists())
+                {
+                    body = FileUtils.readFileToString(new File(path), charset);
+                }
+            }
+        }
+        catch(IOException e)
+        {
+            log.error("Failed to read file.", e);
+        }
+
+        Map<String, String> headers = UIUtil.getValuePair(rv.getPnlHdr().getTabMdl().getValues());
+        Map<String, String> cookies = UIUtil.getValuePair(rv.getPnlCookie().getTabMdl().getValues());
+        headers.put(RESTConst.CONTENT_TYPE, ctype + "; charset=" + charset);
+        if (null == headers.get(RESTConst.ACCEPT))
+        {
+            headers.put(RESTConst.ACCEPT, RESTConst.ACCEPT_TYPE);
+        }
+
+        HttpReq req = new HttpReq(method, url, body, headers, cookies);
+        HttpRsp rsp = RESTClient.getInstance().exec(req);
+
+        RESTView.getView().getRspView().setRspView(rsp);
+        RESTView.getView().getHistView().setHistView(req, rsp);
+    }
+
 
     /**
     * 

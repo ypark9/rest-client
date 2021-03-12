@@ -90,6 +90,7 @@
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+        <!-- jackson end -->
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-batik</artifactId> <!-- svg -->
@@ -100,7 +101,6 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.6-1</version>
         </dependency>
-        <!-- jackson end -->
     </dependencies>
     <build>
         <plugins>

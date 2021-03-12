@@ -29,8 +29,6 @@ public class EasyView extends JPanel implements ActionListener {
 
     private JButton btnStart = null;
 
-    private JProgressBar pb = null;
-    
     private Panel pnlTask = null;
     private Panel pnlSeverConfig = null;
     private Panel pnlInputConfig = null;
@@ -38,68 +36,47 @@ public class EasyView extends JPanel implements ActionListener {
 
     private RESTThd reqThd = null;
 
-    private JTextField wcPath = null;
-    private JTextField wcID = null;
-    private JTextField wcPassword = null;
+    private JTextField txtfldWcPath = null;
+    private JTextField txtfldWcID = null;
+    private JTextField txtfldWcPassword = null;
     private BoxLayoutTemplate pnlServer = null;
     private BoxLayoutTemplate pnlInput = null;
     private BoxLayoutTemplate pnlOutput = null;
+    private JPanel pnlTaskOpt = null;
 
-    public EasyView()
-    {
+    public EasyView() {
         this.init();
     }
 
-    public ImageIcon getIconStart()
-    {
+    public ImageIcon getIconStart() {
         return iconStart;
     }
-
-    public ImageIcon getIconStop()
-    {
+    public ImageIcon getIconStop() {
         return iconStop;
     }
 
-    //public JComboBox<String> getCbUrl()
-//    {
-//        return cbUrl;
-//    }
-
-    public JComboBox<CadTask> getCbTask()
-    {
+    public JComboBox<CadTask> getCbTask() {
         return cbTask;
     }
-
-    public JComboBox<ServerType> getCbServerType()
-    {
+    public JComboBox<ServerType> getCbServerType() {
         return cbServerType;
     }
 
-    public JButton getBtnStart()
-    {
+    public JButton getBtnStart() {
         return btnStart;
     }
-
-    public Panel getPnlTask()
-    {
+    public Panel getPnlTask() {
         return pnlTask;
     }
 
-    public JProgressBar getProgressBar()
-    {
-        return pb;
-    }
-
     /**
-     *
-     * @Title: init
-     * @Description: Component Initialization
      * @param
      * @return void
      * @throws
+     * @Title: init
+     * @Description: Component Initialization
      */
-    private void init()
-    {
+    private void init() {
         this.setLayout(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
         this.setBorder(BorderFactory.createEmptyBorder(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
 
@@ -117,34 +94,50 @@ public class EasyView extends JPanel implements ActionListener {
         //TASK - COMBOBOX
         cbTask = new JComboBox<CadTask>(CadTask.values());
         cbTask.setToolTipText(RESTConst.CADTASK);
-        cbTask.addActionListener(this);
+        cbTask.addActionListener (new ActionListener () {
+            public void actionPerformed(ActionEvent e) {
+                String selectedValue = cbTask.getSelectedItem().toString();
+                System.out.print("Cad Task Selected :" + selectedValue + ". \n");
+                if(selectedValue.equals(CadTask.HELLO.toString()))
+                {
+                    pnlTaskOpt.setVisible(false);
+                }
+                else if(selectedValue.equals(CadTask.GEN_SVG.toString())){
+                    pnlTaskOpt.setVisible(true);
+                }
+                else if(selectedValue.equals(CadTask.GET_DESIGN_TYPE.toString())){
+                    pnlTaskOpt.setVisible(false);
+                }
+            }
+        });
+
         //TASK LABEL
         JLabel lbCadTask = new JLabel(RESTConst.CADTASK + ": ");
         JLabel lbCadTaskOpt = new JLabel(RESTConst.OPTIONAL);
         JCheckBox optESVG = new JCheckBox(RESTConst.ESVG);
-//        cbUrl = new JComboBox<String>();
-//        cbUrl.setEditable(true);
-//        cbUrl.setToolTipText(RESTConst.URL);
-//        cbUrl.requestFocus();
 
         JPanel taskTypePanel = new JPanel();
-        taskTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER));;
+        taskTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        ;
         taskTypePanel.add(lbCadTask);
         taskTypePanel.add(cbTask);
 
-        JPanel taskOptPanel = new JPanel();
-        taskOptPanel.setLayout(new FlowLayout(FlowLayout.CENTER));;
-        taskOptPanel.add(lbCadTaskOpt);
-        taskOptPanel.add(optESVG);
+        pnlTaskOpt = new JPanel();
+        pnlTaskOpt.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        pnlTaskOpt.add(lbCadTaskOpt);
+        pnlTaskOpt.add(optESVG);
+        pnlTaskOpt.setVisible(false);
 
         pnlTask.add(taskTypePanel, BorderLayout.WEST);
-        pnlTask.add(taskOptPanel, BorderLayout.CENTER);
+        pnlTask.add(pnlTaskOpt, BorderLayout.CENTER);
         pnlTask.add(btnStart, BorderLayout.EAST);
 
         //construct panal Setting to pass
-        PanelSetting serverPanelSetup = new PanelSetting( "", "WebCenter", "ID","password", ConfigType.SERVER);
-        PanelSetting inputPanelSetup = new PanelSetting( "Input", "WCDocument", "Project","Document", ConfigType.INPUT);
-        PanelSetting outputPanelSetup = new PanelSetting( "Output", "Location", "Folder Path","Filename", ConfigType.OUTPUT);
+        PanelSetting serverPanelSetup = new PanelSetting("", "WebCenter", "ID", "password", ConfigType.SERVER);
+        serverPanelSetup.SetProgressBar(true);
+        PanelSetting inputPanelSetup = new PanelSetting("Input", "org.wisdom.tool.model.CadJsonWrapper.WCDocument", "Project", "Document", ConfigType.INPUT);
+        PanelSetting outputPanelSetup = new PanelSetting("Output", "Location", "Folder Path", "Filename", ConfigType.OUTPUT);
 
         //Server setting panel
         pnlServer = new BoxLayoutTemplate(serverPanelSetup);
@@ -159,19 +152,18 @@ public class EasyView extends JPanel implements ActionListener {
         this.add(pnlServer, BorderLayout.SOUTH);
 
         // Set the window to be visible as the default to be false
+
         this.setBorder(BorderFactory.createTitledBorder(null, RESTConst.HTTP_REQUEST, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
     }
 
     /**
-     *
-     * @Title: setReqView
-     * @Description: Set HTTP request panel view
      * @param @param req
      * @return void
      * @throws
+     * @Title: setReqView
+     * @Description: Set HTTP request panel view
      */
-    public void setReqView(HttpReq req)
-    {
+    public void setReqView(HttpReq req) {
 //        if (null == req)
 //        {
 //            return;
@@ -230,15 +222,13 @@ public class EasyView extends JPanel implements ActionListener {
     }
 
     /**
-     *
-     * @Title: reset
-     * @Description: reset request view
      * @param
      * @return void
      * @throws
+     * @Title: reset
+     * @Description: reset request view
      */
-    public void reset()
-    {
+    public void reset() {
 //        // Reset URL
 //        cbMtd.setSelectedIndex(0);
 //        cbUrl.setSelectedItem(StringUtils.EMPTY);
@@ -255,23 +245,26 @@ public class EasyView extends JPanel implements ActionListener {
     }
 
     /**
-     *
-     * @Title: bdyPerformed
-     * @Description: Performed body panel
      * @param @param src
      * @return void
      * @throws
+     * @Title: bdyPerformed
+     * @Description: Performed body panel
      */
-    private void bdyPerformed(Object src)
-    {
+    private void bdyPerformed(Object src) {
 //        if (!(src instanceof JComboBox))
 //        {
 //            return;
 //        }
 //
 //        @SuppressWarnings("unchecked")
-//        JComboBox<HttpMethod> cb = (JComboBox<HttpMethod>) src;
-//        HttpMethod mthd = (HttpMethod) cb.getSelectedItem();
+//        //JComboBox<HttpMethod> cb = (JComboBox<HttpMethod>) src;
+//        //First one is Hello (GET)
+//        HttpMethod mthd = HttpMethod.GET;
+//        if (cbTask.getSelectedIndex() == 0) {
+//            mthd = HttpMethod.GET;
+//        }
+//
 //        if (HttpMethod.POST.equals(mthd) || HttpMethod.PUT.equals(mthd))
 //        {
 //            pnlBody.getCbBodyType().setSelectedIndex(0);
@@ -295,63 +288,63 @@ public class EasyView extends JPanel implements ActionListener {
     }
 
     /**
-     *
-     * @Title: btnStartPerformed
-     * @Description: Performed start button
      * @param @param src
      * @return void
      * @throws
+     * @Title: btnStartPerformed
+     * @Description: Performed start button
      */
-    private void btnStartPerformed(Object src)
-    {
-//        if (!(src instanceof JButton))
-//        {
-//            return;
-//        }
-//
-//        JButton btn = (JButton) src;
-//        if (this.iconStop.equals(btn.getIcon()))
-//        {
-//            if (null == this.reqThd)
-//            {
-//                return;
-//            }
-//
-//            this.reqThd.interrupt();
-//
-//            this.btnStart.setIcon(this.iconStart);
-//            this.btnStart.setToolTipText(RESTConst.START);
-//            this.btnStart.setEnabled(true);
-//
-//            this.pb.setVisible(false);
-//            this.pb.setIndeterminate(false);
-//            return;
-//        }
-//
-//        try
-//        {
-//            this.btnStart.setIcon(this.iconStop);
-//            this.btnStart.setToolTipText(RESTConst.STOP);
-//            this.btnStart.setEnabled(false);
-//
-//            this.reqThd = new RESTThd();
-//            this.reqThd.setName(RESTConst.REQ_THREAD);
-//            this.reqThd.start();
-//
-//            this.btnStart.setEnabled(true);
-//
-//            this.pb.setVisible(true);
-//            this.pb.setIndeterminate(true);
-//        }
-//        catch(Throwable e)
-//        {
-//            log.error("Failed to submit HTTP request.", e);
-//        }
+    private void btnStartPerformed(Object src) {
+        if (!(src instanceof JButton))
+        {
+            return;
+        }
+
+        JButton btn = (JButton) src;
+        if (this.iconStop.equals(btn.getIcon()))
+        {
+            if (null == this.reqThd)
+            {
+                return;
+            }
+
+            this.reqThd.interrupt();
+
+            this.btnStart.setIcon(this.iconStart);
+            this.btnStart.setToolTipText(RESTConst.START);
+            this.btnStart.setEnabled(true);
+
+            pnlServer.getProgressBar().setVisible(false);
+            pnlServer.getProgressBar().setIndeterminate(false);
+            return;
+        }
+
+        try
+        {
+            this.btnStart.setIcon(this.iconStop);
+            this.btnStart.setToolTipText(RESTConst.STOP);
+            this.btnStart.setEnabled(false);
+
+            this.reqThd = new RESTThd();
+            this.reqThd.SetRequestMode(1);
+            this.reqThd.setName(RESTConst.REQ_THREAD);
+            this.reqThd.start();
+
+            this.btnStart.setEnabled(true);
+
+            pnlServer.getProgressBar().setVisible(true);
+            pnlServer.getProgressBar().setIndeterminate(true);
+        }
+        catch(Throwable e)
+        {
+            log.error("Failed to submit HTTP request.", e);
+        }
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
+    public void actionPerformed(ActionEvent e) {
+        System.out.print("EasyView : Action Triggered\n");
 //        this.bdyPerformed(e.getSource());
-//        this.btnStartPerformed(e.getSource());
+        System.out.print("EasyView : ProgressBar initiated\n");
+        this.btnStartPerformed(e.getSource());
     }
 }

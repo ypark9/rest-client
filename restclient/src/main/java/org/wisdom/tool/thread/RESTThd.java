@@ -35,7 +35,7 @@ import org.wisdom.tool.util.RESTClient;
 public class RESTThd extends Thread
 {
     private static Logger log = LogManager.getLogger(RESTThd.class);
-
+    private static int mode = 0;
     public void interrupt()
     {
         try
@@ -49,10 +49,15 @@ public class RESTThd extends Thread
         }
     }
 
+    public void SetRequestMode(int mode){this.mode = mode; }
+
     public void run()
     {
         ReqView rv = RESTView.getView().getReqView();
-        UIUtil.submit(rv);
+        if(mode == 0)
+            UIUtil.submit(rv);
+        else if(mode == 1)
+            UIUtil.CadTaskSubmit(rv);
 
         rv.getBtnStart().setIcon(rv.getIconStart());
         rv.getBtnStart().setToolTipText(RESTConst.START);

@@ -26,4 +26,24 @@ public enum CadTask {
         this.mid = mid;
     }
 
+    /**
+     * @return get the proper HTTP method
+     */
+    public String getHttpMethod(){
+        String retVal = "POST";
+        if(this.mid == 0)
+            retVal = "GET";
+        return retVal;
+    }
+
+    /**
+     * @return get the proper HTTP method
+     */
+    public String getEnd(){
+        String retVal = "ECadTask";
+        if(this.mid == 0)
+            retVal = "Hello";
+        return retVal;
+    }
+
 }
