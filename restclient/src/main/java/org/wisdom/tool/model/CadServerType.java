@@ -1,11 +1,11 @@
 package org.wisdom.tool.model;
 
-public enum ServerType {
-    WEB_CENTER(0);
+public enum CadServerType {
+    WebCenter(0), Cloud(1);
 
     private int mid;
 
-    private ServerType(int mid)
+    private CadServerType(int mid)
     {
         this.mid = mid;
     }

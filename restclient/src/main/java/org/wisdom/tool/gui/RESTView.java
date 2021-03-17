@@ -81,6 +81,11 @@ public class RESTView extends JPanel
         return vHist;
     }
 
+    public EasyView getEasyView()
+    {
+        return vEasy;
+    }
+    
     public JTabbedPane getTabPane()
     {
         return tp;

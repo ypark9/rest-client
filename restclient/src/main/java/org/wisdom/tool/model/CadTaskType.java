@@ -1,11 +1,11 @@
 package org.wisdom.tool.model;
 
-public enum CadTask {
+public enum CadTaskType {
     HELLO(0), GEN_SVG(1), GET_DESIGN_TYPE(2);
 
     private int mid;
 
-    private CadTask(int mid)
+    private CadTaskType(int mid)
     {
         this.mid = mid;
     }

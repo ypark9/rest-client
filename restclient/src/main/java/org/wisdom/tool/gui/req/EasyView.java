@@ -4,8 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.util.BoxLayoutTemplate;
+import org.wisdom.tool.gui.util.CadTaskBoxLayoutPanel;
 import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.model.*;
+import org.wisdom.tool.model.CadJsonWrapper.CadTaskJson;
 import org.wisdom.tool.thread.RESTThd;
 
 import javax.swing.*;
@@ -20,45 +22,42 @@ public class EasyView extends JPanel implements ActionListener {
     private static Logger log = LogManager.getLogger(EasyView.class);
 
     private ImageIcon iconStart = null;
-
     private ImageIcon iconStop = null;
 
-    private JComboBox<CadTask> cbTask = null;
-
-    private JComboBox<ServerType> cbServerType = null;
-
-    private JButton btnStart = null;
+    private JComboBox<CadTaskType> cbTask = null;
+    private JComboBox<CadServerType> cbServerType = null;
 
     private Panel pnlTask = null;
-    private Panel pnlSeverConfig = null;
-    private Panel pnlInputConfig = null;
-    private JPanel pnlOutputConfig = null;
+    private JPanel pnlTaskOpt = null;
 
+    //Brain to handle JSON
+    CadTaskBrain cadTaskBrain = null;
     private RESTThd reqThd = null;
 
+    private JButton btnStart = null;
     private JTextField txtfldWcPath = null;
     private JTextField txtfldWcID = null;
     private JTextField txtfldWcPassword = null;
+
     private BoxLayoutTemplate pnlServer = null;
     private BoxLayoutTemplate pnlInput = null;
     private BoxLayoutTemplate pnlOutput = null;
-    private JPanel pnlTaskOpt = null;
+    private CadTaskBoxLayoutPanel pnlCadTask = null;
+    private PanelSetting serverPnlSetting;
+    private PanelSetting inputPnlSetting;
+    private PanelSetting outputPnlSetting;
 
-    public EasyView() {
-        this.init();
-    }
-
-    public ImageIcon getIconStart() {
-        return iconStart;
-    }
+    //Getter and Setter
+    public EasyView() {  this.init(); }
+    public ImageIcon getIconStart() { return iconStart; }
     public ImageIcon getIconStop() {
         return iconStop;
     }
 
-    public JComboBox<CadTask> getCbTask() {
+    public JComboBox<CadTaskType> getCbTask() {
         return cbTask;
     }
-    public JComboBox<ServerType> getCbServerType() {
+    public JComboBox<CadServerType> getCbServerType() {
         return cbServerType;
     }
 
@@ -68,6 +67,12 @@ public class EasyView extends JPanel implements ActionListener {
     public Panel getPnlTask() {
         return pnlTask;
     }
+    public JPanel getPnlTaskOpt() {
+        return pnlTaskOpt;
+    }
+
+    public CadTaskBrain getCadTaskBrain() { return cadTaskBrain; }
+
 
     /**
      * @param
@@ -92,35 +97,21 @@ public class EasyView extends JPanel implements ActionListener {
         btnStart.setToolTipText(RESTConst.START);
         btnStart.addActionListener(this);
         //TASK - COMBOBOX
-        cbTask = new JComboBox<CadTask>(CadTask.values());
-        cbTask.setToolTipText(RESTConst.CADTASK);
-        cbTask.addActionListener (new ActionListener () {
-            public void actionPerformed(ActionEvent e) {
-                String selectedValue = cbTask.getSelectedItem().toString();
-                System.out.print("Cad Task Selected :" + selectedValue + ". \n");
-                if(selectedValue.equals(CadTask.HELLO.toString()))
-                {
-                    pnlTaskOpt.setVisible(false);
-                }
-                else if(selectedValue.equals(CadTask.GEN_SVG.toString())){
-                    pnlTaskOpt.setVisible(true);
-                }
-                else if(selectedValue.equals(CadTask.GET_DESIGN_TYPE.toString())){
-                    pnlTaskOpt.setVisible(false);
-                }
-            }
-        });
+        cbTask = new JComboBox<CadTaskType>(CadTaskType.values());
+
+        cadTaskBrain =  new CadTaskBrain();
+        cadTaskBrain.ChangeCadTask((CadTaskType) cbTask.getSelectedItem());
 
         //TASK LABEL
         JLabel lbCadTask = new JLabel(RESTConst.CADTASK + ": ");
         JLabel lbCadTaskOpt = new JLabel(RESTConst.OPTIONAL);
         JCheckBox optESVG = new JCheckBox(RESTConst.ESVG);
 
-        JPanel taskTypePanel = new JPanel();
-        taskTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        ;
-        taskTypePanel.add(lbCadTask);
-        taskTypePanel.add(cbTask);
+        //Task panel
+        pnlCadTask = new CadTaskBoxLayoutPanel(this);
+        //        pnlTaskType.setLayout(new FlowLayout(FlowLayout.CENTER));
+        //        pnlTaskType.add(lbCadTask);
+        //        pnlTaskType.add(cbTask);
 
         pnlTaskOpt = new JPanel();
         pnlTaskOpt.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -129,22 +120,19 @@ public class EasyView extends JPanel implements ActionListener {
         pnlTaskOpt.add(optESVG);
         pnlTaskOpt.setVisible(false);
 
-        pnlTask.add(taskTypePanel, BorderLayout.WEST);
+        pnlTask.add(pnlCadTask, BorderLayout.WEST);
         pnlTask.add(pnlTaskOpt, BorderLayout.CENTER);
         pnlTask.add(btnStart, BorderLayout.EAST);
 
-        //construct panal Setting to pass
-        PanelSetting serverPanelSetup = new PanelSetting("", "WebCenter", "ID", "password", ConfigType.SERVER);
-        serverPanelSetup.SetProgressBar(true);
-        PanelSetting inputPanelSetup = new PanelSetting("Input", "org.wisdom.tool.model.CadJsonWrapper.WCDocument", "Project", "Document", ConfigType.INPUT);
-        PanelSetting outputPanelSetup = new PanelSetting("Output", "Location", "Folder Path", "Filename", ConfigType.OUTPUT);
-
         //Server setting panel
-        pnlServer = new BoxLayoutTemplate(serverPanelSetup);
+        serverPnlSetting = cadTaskBrain.getPanelSettingForServer();
+        inputPnlSetting = cadTaskBrain.getPanelSettingForInput();
+        outputPnlSetting = cadTaskBrain.getPanelSettingForOutput();
+        pnlServer = new BoxLayoutTemplate(serverPnlSetting);
         //Input panel
-        pnlInput = new BoxLayoutTemplate(inputPanelSetup);
+        pnlInput = new BoxLayoutTemplate(inputPnlSetting);
         //output panel
-        pnlOutput = new BoxLayoutTemplate(outputPanelSetup);
+        pnlOutput = new BoxLayoutTemplate(outputPnlSetting);
 
         this.add(pnlTask, BorderLayout.NORTH);
         this.add(pnlInput, BorderLayout.WEST);
@@ -152,7 +140,6 @@ public class EasyView extends JPanel implements ActionListener {
         this.add(pnlServer, BorderLayout.SOUTH);
 
         // Set the window to be visible as the default to be false
-
         this.setBorder(BorderFactory.createTitledBorder(null, RESTConst.HTTP_REQUEST, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
     }
 
@@ -299,6 +286,8 @@ public class EasyView extends JPanel implements ActionListener {
         {
             return;
         }
+        //ask brain to create json for the upcoming process.
+        String jsonStr = cadTaskBrain.GetJsonString();
 
         JButton btn = (JButton) src;
         if (this.iconStop.equals(btn.getIcon()))
@@ -346,5 +335,16 @@ public class EasyView extends JPanel implements ActionListener {
 //        this.bdyPerformed(e.getSource());
         System.out.print("EasyView : ProgressBar initiated\n");
         this.btnStartPerformed(e.getSource());
+    }
+
+    public void UpdateGUI() {
+        cbTask.setSelectedItem(cadTaskBrain.getCadTaskType());
+        System.out.println("UPDATE TASK Combo to: "+ cadTaskBrain.getCadTaskType().toString());
+        serverPnlSetting = cadTaskBrain.getPanelSettingForServer();
+        inputPnlSetting = cadTaskBrain.getPanelSettingForInput();
+        outputPnlSetting = cadTaskBrain.getPanelSettingForOutput();
+        System.out.println("Server setting: " + serverPnlSetting.toString() + ", "
+                + "Input setting: " + inputPnlSetting.toString() + ", "
+                + "Output setting: " + outputPnlSetting.toString());
     }
 }

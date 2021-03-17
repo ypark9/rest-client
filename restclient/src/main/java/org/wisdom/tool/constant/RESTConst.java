@@ -415,4 +415,27 @@ public class RESTConst
     public final static String NEW_HDR = "New " + HEADER;
 
     public final static String REFRESH = "Refresh";
+
+    public final static String PROJECT = "Project";
+    public final static String DOCUMENT = "Document";
+    public final static String FOLDERPATH = "Folder Path";
+    public final static String FILENAME = "Filename";
+    public final static String ERRORLOGPATH = "Error data Log File Path";
+    public final static String PASSWORD = "Password";
+    public final static String LOCALPATH = "Local Path";
+
+    public final static String WC03 = "http:\\\\rdvmuswc03\\WebCenter_Inst";
+    public final static String WC04 = "http:\\\\rdvmuswc04\\WebCenter_Inst";
+    public final static String WC05 = "http:\\\\rdvmuswc05\\WebCenter_Inst";
+    public final static String CLOUD_URL = "https:////cad.next.dev.cloudi.city//rest//ECadServer//";
+    public final static String LOCAL_URL = "http:////localhost:8080//ia-cad-service//rest/CadServer//";
+
+    public final static String WEBCENTER = "WebCenter";
+    public final static String WCDOCUMENT = "WCDocument";
+
+    public final static String INPUT = "INPUT";
+    public final static String SERVER = "SERVER";
+
+    public final static String LOAD_JSON_FILE = "Load JSON File";
+
 }

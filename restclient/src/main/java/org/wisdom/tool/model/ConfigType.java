@@ -1,7 +1,7 @@
 package org.wisdom.tool.model;
 
 public enum ConfigType {
-    DEFAULT(0), INPUT(1), OUTPUT(2), SERVER(3);
+    DEFAULT(0), INPUT(1), OUTPUT(2), SERVER(3), CADTASK(4);
 
     private int mid;
 

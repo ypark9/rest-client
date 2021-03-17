@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.RESTView;
+import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.util.RESTClient;
@@ -54,10 +55,12 @@ public class RESTThd extends Thread
     public void run()
     {
         ReqView rv = RESTView.getView().getReqView();
+        EasyView ev = RESTView.getView().getEasyView();
+
         if(mode == 0)
             UIUtil.submit(rv);
         else if(mode == 1)
-            UIUtil.CadTaskSubmit(rv);
+            UIUtil.CadTaskSubmit(ev);
 
         rv.getBtnStart().setIcon(rv.getIconStart());
         rv.getBtnStart().setToolTipText(RESTConst.START);
