@@ -160,11 +160,13 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         mnFile.add(miExit);
         
         // Menu of edit
+        JMenuItem miResetEasy = new JMenuItem(RESTConst.RESET_EASY);
         JMenuItem miResetReq = new JMenuItem(RESTConst.RESET_REQ);
         JMenuItem miResetRsp = new JMenuItem(RESTConst.RESET_RSP);
         JMenuItem miResetAll = new JMenuItem(RESTConst.RESET_ALL);
         JMenuItem miRmHist = new JMenuItem(RESTConst.RM_ALL);
 
+        miResetEasy.addActionListener(this);
         miResetReq.addActionListener(this);
         miResetRsp.addActionListener(this);
         
@@ -175,6 +177,7 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         miRmHist.setToolTipText(RESTConst.RM_ALL + " " + RESTConst.HIST);
 
         mnEdit.add(miResetReq);
+        mnEdit.add(miResetEasy);
         mnEdit.add(miResetRsp);
         mnEdit.add(miResetAll);
         mnEdit.addSeparator();
@@ -293,6 +296,12 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
      */
     private void editPerformed(JMenuItem item)
     {
+        if (RESTConst.RESET_EASY.equals(item.getText()))
+        {
+            RESTView.getView().getEasyView().reset();
+            return;
+        }
+
         if (RESTConst.RESET_REQ.equals(item.getText()))
         {
             RESTView.getView().getReqView().reset();
@@ -435,13 +444,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         {
             ad.setVisible(true);
             UIUtil.setLocation(ad);
-            return;
-        }
-
-        if (RESTConst.DONATE.equals(item.getText()))
-        {
-            dd.setVisible(true);
-            UIUtil.setLocation(dd);
             return;
         }
 

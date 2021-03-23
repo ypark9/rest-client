@@ -108,6 +108,7 @@ public class RESTConst
     public static final String DELETE = "Delete";
 
     public static final String SELECT_FILE = "Select File";
+    public static final String SELECT_FOLDER = "Select Folder";
 
     public static final String BROWSE = "Browse";
 
@@ -427,8 +428,8 @@ public class RESTConst
     public final static String WC03 = "http:\\\\rdvmuswc03\\WebCenter_Inst";
     public final static String WC04 = "http:\\\\rdvmuswc04\\WebCenter_Inst";
     public final static String WC05 = "http:\\\\rdvmuswc05\\WebCenter_Inst";
-    public final static String CLOUD_URL = "https:////cad.next.dev.cloudi.city//rest//ECadServer//";
-    public final static String LOCAL_URL = "http:////localhost:8080//ia-cad-service//rest/CadServer//";
+    public final static String CLOUD_URL = "https://cad.next.dev.cloudi.city/rest/ECadServer/";
+    public final static String LOCAL_URL = "http://localhost:8080/ia-cad-service/rest/CadServer/";
 
     public final static String WEBCENTER = "WebCenter";
     public final static String WCDOCUMENT = "WCDocument";
@@ -437,5 +438,6 @@ public class RESTConst
     public final static String SERVER = "SERVER";
 
     public final static String LOAD_JSON_FILE = "Load JSON File";
-
+    public final static String SAVE_JSON_FILE = "Save JSON File";
+    public final static String RESET_EASY = "Reset Easy tab";
 }

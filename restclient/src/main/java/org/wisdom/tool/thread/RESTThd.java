@@ -25,60 +25,60 @@ import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.util.RESTClient;
 
-/** 
-* @ClassName: RESTThd 
-* @Description: Test thread 
-* @Author: Yudong (Dom) Wang
-* @Email: wisdomtool@qq.com 
-* @Date: 2017-07-18 PM 9:41:08 
-* @Version: Wisdom RESTClient V1.2 
-*/
-public class RESTThd extends Thread
-{
+/**
+ * @ClassName: RESTThd
+ * @Description: Test thread
+ * @Author: Yudong (Dom) Wang
+ * @Email: wisdomtool@qq.com
+ * @Date: 2017-07-18 PM 9:41:08
+ * @Version: Wisdom RESTClient V1.2
+ */
+public class RESTThd extends Thread {
     private static Logger log = LogManager.getLogger(RESTThd.class);
     private static int mode = 0;
-    public void interrupt()
-    {
-        try
-        {
+
+    public void interrupt() {
+        try {
             RESTClient.getInstance().close();
             super.interrupt();
-        }
-        catch(Throwable e)
-        {
+        } catch (Throwable e) {
             log.error("Failed to interrupt thread.", e);
         }
     }
 
-    public void SetRequestMode(int mode){this.mode = mode; }
+    public void SetRequestMode(int mode) {
+        this.mode = mode;
+    }
 
-    public void run()
-    {
-        ReqView rv = RESTView.getView().getReqView();
-        EasyView ev = RESTView.getView().getEasyView();
-
-        if(mode == 0)
+    public void run() {
+        if (mode == 0) {
+            ReqView rv = RESTView.getView().getReqView();
             UIUtil.submit(rv);
-        else if(mode == 1)
-            UIUtil.CadTaskSubmit(ev);
 
-        rv.getBtnStart().setIcon(rv.getIconStart());
-        rv.getBtnStart().setToolTipText(RESTConst.START);
-        rv.getBtnStart().setEnabled(true);
+            rv.getBtnStart().setIcon(rv.getIconStart());
+            rv.getBtnStart().setToolTipText(RESTConst.START);
+            rv.getBtnStart().setEnabled(true);
 
-        rv.getProgressBar().setVisible(false);
-        rv.getProgressBar().setIndeterminate(false);
+            rv.getProgressBar().setVisible(false);
+            rv.getProgressBar().setIndeterminate(false);
 
-        String body = RESTView.getView().getRspView().getBodyView().getTxtAra().getText();
-        RESTView.getView().getTabPane().setSelectedIndex(1);
-        if (StringUtils.isNotEmpty(body))
-        {
-            RESTView.getView().getRspView().getTabPane().setSelectedIndex(0);
+            String body = RESTView.getView().getRspView().getBodyView().getTxtAra().getText();
+            RESTView.getView().getTabPane().setSelectedIndex(1);
+            if (StringUtils.isNotEmpty(body)) {
+                RESTView.getView().getRspView().getTabPane().setSelectedIndex(0);
+            } else {
+                RESTView.getView().getRspView().getTabPane().setSelectedIndex(2);
+            }
+        } else if (mode == 1) {
+            EasyView easyView = RESTView.getView().getEasyView();
+            UIUtil.CadTaskSubmit(easyView);
+
+            easyView.getBtnEasyStart().setIcon(easyView.getIconStart());
+            easyView.getBtnEasyStart().setToolTipText(RESTConst.START);
+            easyView.getBtnEasyStart().setEnabled(true);
+
+            easyView.getPnlServer().getProgressBar().setVisible(false);
+            easyView.getPnlServer().getProgressBar().setIndeterminate(false);
         }
-        else
-        {
-            RESTView.getView().getRspView().getTabPane().setSelectedIndex(2);
-        }
-
     }
 }

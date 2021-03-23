@@ -1,5 +1,4 @@
 package org.wisdom.tool.model;
-
 import org.wisdom.tool.constant.RESTConst;
 
 public class PanelSetting {
@@ -7,14 +6,6 @@ public class PanelSetting {
     String mainTitle = "";
     String component1 = "";
     String component2 = "";
-    ConfigType type = ConfigType.DEFAULT;
-    boolean bNeedProgressBar = false;
-
-    CadTaskType cadTaskType;
-    CadInputType cadInputType;
-    CadServerType serverType;
-
-    //hmmm..
     String wcProject = "";
     String wcDoc = "";
     String outputFolderPath = "";
@@ -24,6 +15,11 @@ public class PanelSetting {
     String wcID = "";
     String wcPassword = "";
     String localPath = "";
+    ConfigType type = ConfigType.DEFAULT;
+    CadTaskType cadTaskType;
+    CadInputType cadInputType;
+    CadServerType serverType;
+    boolean bNeedProgressBar = false;
 
     public CadTaskType getCadTaskType() {
         return cadTaskType;
@@ -71,6 +67,7 @@ public class PanelSetting {
 
     public void setOutputFolderPath(String outputFolderPath) {
         this.outputFolderPath = outputFolderPath;
+        System.out.println("* setOutputFolderPath" + outputFolderPath);
     }
 
     public String getOutputFilename() {
@@ -133,49 +130,45 @@ public class PanelSetting {
     }
 
     //Getter
-    public String GetMainTitle(){
+    public String getMainTitle(){
         return this.mainTitle;
     }
-    public String GetSubTitle(){
+    public String getSubTitle(){
         return this.subTitle;
     }
-    public String GetComponent1(){
+    public String getComponent1(){
         return this.component1;
     }
-    public String GetComponent2(){
+    public String getComponent2(){
         return this.component2;
     }
-    public ConfigType GetConfigType(){return this.type;}
-    public boolean GetNeedProgressBar() { return this.bNeedProgressBar;}
+    public ConfigType getConfigType(){return this.type;}
+    public boolean getNeedProgressBar() { return this.bNeedProgressBar;}
 
     //Setter
-    public void SetProgressBar(boolean bNeed){this.bNeedProgressBar = bNeed; }
+    public void setProgressBar(boolean bNeed){this.bNeedProgressBar = bNeed; }
 
-    public void UpdatePanelSetting(String tooltipStr, String val){
+    public void updatePanelSetting(String tooltipStr, String val){
+        System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
+
         if(tooltipStr.equals(RESTConst.PROJECT)){
             setWcProject(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.DOCUMENT)){
             setWcDoc(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
+        }else if(tooltipStr.equals(RESTConst.LOCALPATH)){
+            setLocalPath(val);
         } else if(tooltipStr.equals(RESTConst.FOLDERPATH)){
             setOutputFolderPath(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.FILENAME)){
             setOutputFilename(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.ERRORLOGPATH)){
             setErrorLogFilePath(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.ID)){
             setWcID(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.PASSWORD)){
             setWcPassword(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         } else if(tooltipStr.equals(RESTConst.URL)){
             setWcUrl(val);
-            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
         }
     }
 
@@ -192,6 +185,24 @@ public class PanelSetting {
                 + "WC info: " + wcUrl + "\n  "
                 + wcID + "\n  "
                 + wcPassword + "\n";
+    }
 
+    /**
+     * reset the member variables
+     */
+    public void reset(){
+        this.subTitle = "";
+        this.mainTitle = "";
+        this.component1 = "";
+        this.component2 = "";
+        this.wcProject = "";
+        this.wcDoc = "";
+        this.outputFolderPath = "";
+        this.outputFilename = "";
+        this.errorLogFilePath = "";
+        this.wcUrl = "";
+        this.wcID = "";
+        this.wcPassword = "";
+        this.localPath = "";
     }
 }

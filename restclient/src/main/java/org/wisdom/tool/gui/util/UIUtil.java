@@ -53,13 +53,7 @@ import org.wisdom.tool.gui.RESTView;
 import org.wisdom.tool.gui.common.TabModel;
 import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.gui.req.ReqView;
-import org.wisdom.tool.model.BodyType;
-import org.wisdom.tool.model.Charsets;
-import org.wisdom.tool.model.HttpHist;
-import org.wisdom.tool.model.HttpHists;
-import org.wisdom.tool.model.HttpMethod;
-import org.wisdom.tool.model.HttpReq;
-import org.wisdom.tool.model.HttpRsp;
+import org.wisdom.tool.model.*;
 import org.wisdom.tool.util.RESTClient;
 import org.wisdom.tool.util.RESTUtil;
 
@@ -186,7 +180,68 @@ public class UIUtil
 
         return content;
     }
-    
+
+    /**
+     *
+     * @param parent
+     * @param fc
+     * @return string
+     */
+    public static String getPath(Component parent, JFileChooser fc)
+    {
+        String content = StringUtils.EMPTY;
+        int retVal = fc.showOpenDialog(parent);
+        if (JFileChooser.APPROVE_OPTION != retVal)
+        {
+            return content;
+        }
+        File sf = fc.getSelectedFile();
+        content = sf.getPath();
+        return content;
+    }
+
+    /**
+     *
+     * @param parent
+     * @param fc
+     * @return
+     */
+    public static String getFolderPath(Component parent, JFileChooser fc)
+    {
+        String content = StringUtils.EMPTY;
+        int retVal = fc.showOpenDialog(parent);
+        if (JFileChooser.APPROVE_OPTION != retVal)
+        {
+            return content;
+        }
+        File sf = fc.getSelectedFile();
+        if(!sf.exists()){
+            sf = sf.getParentFile();
+        }
+        if(sf.isDirectory())
+            content = sf.getPath();
+        return content;
+    }
+
+    /**
+     *
+     * @param parent
+     * @param fc
+     * @return
+     */
+    public static String getFilename(Component parent, JFileChooser fc)
+    {
+        String content = StringUtils.EMPTY;
+        int retVal = fc.showOpenDialog(parent);
+        if (JFileChooser.APPROVE_OPTION != retVal)
+        {
+            return content;
+        }
+        File sf = fc.getSelectedFile();
+        content = sf.getName();
+        return content;
+    }
+
     /**
     * 
     * @Title: saveFile 
@@ -297,49 +352,34 @@ public class UIUtil
         return content;
     }
 
-    public static void CadTaskSubmit(EasyView rv){
-//        String url = (String) rv.getCbUrl().getSelectedItem();
-//        if (StringUtils.isBlank(url))
-//        {
-//            return;
-//        }
-//
-//        HttpMethod method = (HttpMethod) rv.getCbMtd().getSelectedItem();
-//        String btype = (String) rv.getPnlBody().getCbBodyType().getSelectedItem();
-//        String charset = (String) rv.getPnlBody().getCbCharset().getSelectedItem();
-//        String ctype = (String) rv.getPnlBody().getCbContentType().getSelectedItem();
-//        String body = rv.getPnlBody().getTxtAraBody().getText();
-//        String path = rv.getPnlBody().getTxtFldPath().getText();
-//
-//        try
-//        {
-//            if (BodyType.FILE.getType().equals(btype))
-//            {
-//                File f = new File(path);
-//                if (f.exists())
-//                {
-//                    body = FileUtils.readFileToString(new File(path), charset);
-//                }
-//            }
-//        }
-//        catch(IOException e)
-//        {
-//            log.error("Failed to read file.", e);
-//        }
-//
-//        Map<String, String> headers = UIUtil.getValuePair(rv.getPnlHdr().getTabMdl().getValues());
-//        Map<String, String> cookies = UIUtil.getValuePair(rv.getPnlCookie().getTabMdl().getValues());
-//        headers.put(RESTConst.CONTENT_TYPE, ctype + "; charset=" + charset);
-//        if (null == headers.get(RESTConst.ACCEPT))
-//        {
-//            headers.put(RESTConst.ACCEPT, RESTConst.ACCEPT_TYPE);
-//        }
-//
-//        HttpReq req = new HttpReq(method, url, body, headers, cookies);
-//        HttpRsp rsp = RESTClient.getInstance().exec(req);
-//
-//        RESTView.getView().getRspView().setRspView(rsp);
-//        RESTView.getView().getHistView().setHistView(req, rsp);
+    public static void CadTaskSubmit(EasyView easyView){
+        CadTaskBrain cadTaskBrain = easyView.getCadTaskBrain();
+        String url = cadTaskBrain.getUrl();
+        //System.out.println("Request sent to: " + url);
+        if (StringUtils.isBlank(url))
+        {
+            return;
+        }
+
+        HttpMethod method = HttpMethod.valueOf(cadTaskBrain.getMethod());
+        String charset = "UTF-8";
+        String ctype = "application/json";
+        String body = cadTaskBrain.getJsonString();
+
+        Map<String, String> headers = easyView.getHeader();
+        Map<String, String> cookies = easyView.getCookies();
+
+        headers.put(RESTConst.CONTENT_TYPE, ctype + "; charset=" + charset);
+        if (null == headers.get(RESTConst.ACCEPT))
+        {
+            headers.put(RESTConst.ACCEPT, RESTConst.ACCEPT_TYPE);
+        }
+
+        HttpReq req = new HttpReq(method, url, body, headers, cookies);
+        HttpRsp rsp = RESTClient.getInstance().exec(req);
+        System.out.println(req.toString());
+        RESTView.getView().getRspView().setRspView(rsp);
+        RESTView.getView().getHistView().setHistView(req, rsp);
     }
 
 
@@ -391,6 +431,7 @@ public class UIUtil
         }
 
         HttpReq req = new HttpReq(method, url, body, headers, cookies);
+        System.out.println(req.toString());
         HttpRsp rsp = RESTClient.getInstance().exec(req);
 
         RESTView.getView().getRspView().setRspView(rsp);

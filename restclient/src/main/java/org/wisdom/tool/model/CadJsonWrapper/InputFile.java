@@ -22,7 +22,7 @@ public class InputFile {
     @JsonProperty("WCDocument")
     private WCDocument wCDocument;
     @JsonProperty("LocalPath")
-    private String localPath;
+    private String localPath = "";
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 

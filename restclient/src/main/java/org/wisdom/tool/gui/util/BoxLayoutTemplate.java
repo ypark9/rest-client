@@ -1,5 +1,6 @@
 package org.wisdom.tool.gui.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.model.CadInputType;
 import org.wisdom.tool.model.ConfigType;
@@ -18,19 +19,12 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
 
     PanelSetting panelSetting = null;
 
-    public PanelSetting getPanelSetting() {
-        return panelSetting;
-    }
-
-    public void setPanelSetting(PanelSetting panelSetting) {
-        this.panelSetting = panelSetting;
-    }
-
     String mainTitle = "";
     String subTitle = "";
     String component1 = "";
     String component2 = "";
-
+    private JFileChooser folderChooser = null;
+    private JFileChooser fileChooser = null;
     private JProgressBar pb = null;
     private JLabel subTitleLabel = null;
     public JTextField txtfldComp1;
@@ -39,31 +33,28 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
     ArrayList<JComboBox> comboBoxes = new ArrayList<JComboBox>();
     private int width = 400;
     private int height = 300;
-    private JComboBox<CadServerType> cbServerType = null;
-    private JComboBox<CadInputType> cbInputType = null;
 
-    public String GetComponent1Input() {
-        return txtfldComp1.getText();
-    }
-
-    public String GetComponent2Input() {
-        return txtfldComp2.getText();
-    }
-
-    public JProgressBar getProgressBar() {
-        return pb;
-    }
-
-    private JPanel GetMainPanel() {
-        return this;
-    }
-
+    public JProgressBar getProgressBar() { return pb; }
+    public ArrayList<JTextField> getTxtfldList(){ return txtfldList; }
     public BoxLayoutTemplate(PanelSetting pSetting) {
         this.init(pSetting);
     }
 
+    /**
+     *
+     * @param pSetting
+     */
     public void init(final PanelSetting pSetting) {
-        setPanelSetting(pSetting);
+        this.panelSetting = pSetting;
+
+        //FileChooser
+        fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setPreferredSize(new Dimension(800, 600));
+        folderChooser = new JFileChooser();
+        folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        folderChooser.setPreferredSize(new Dimension(800, 600));
+
         this.setLayout(new BorderLayout(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
         this.setBorder(BorderFactory.createEmptyBorder(RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH, RESTConst.BORDER_WIDTH));
         JPanel global = new JPanel();
@@ -95,7 +86,7 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
                     if (src.getText().equals("")) {
                         src.setText("Text here!");
                     } else {
-                        pSetting.UpdatePanelSetting(src.getToolTipText(), src.getText());
+                        pSetting.updatePanelSetting(src.getToolTipText(), src.getText());
                     }
                 } catch (ClassCastException ignored) {
                     /* I only listen to JTextFields */
@@ -104,14 +95,14 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         };
 
         // Elements of global
-        JPanel additionalPanel = makePanelForSettings(pSetting.GetConfigType());
+        JPanel additionalPanel = makePanelForSettings(pSetting.getConfigType());
         if (additionalPanel != null) {
             global.add(additionalPanel);
         }
-        mainTitle = pSetting.GetMainTitle();
-        subTitle = pSetting.GetSubTitle();
-        component1 = pSetting.GetComponent1();
-        component2 = pSetting.GetComponent2();
+        mainTitle = pSetting.getMainTitle();
+        subTitle = pSetting.getSubTitle();
+        component1 = pSetting.getComponent1();
+        component2 = pSetting.getComponent2();
 
         subTitleLabel = new JLabel(subTitle);
         subTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -128,10 +119,17 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         txtfldComp1 = new JTextField(20);
         txtfldComp1.setPreferredSize(new Dimension(20, 25));
         txtfldComp1.addActionListener(this);
-        txtfldComp1.addFocusListener(myFocusListener);
+        //txtfldComp1.addFocusListener(myFocusListener);
+        txtfldList.add(txtfldComp1);
         txtfldComp1.setToolTipText(component1);
         c.add(label);
         c.add(txtfldComp1);
+        if (pSetting.getConfigType() == ConfigType.OUTPUT) {
+            JButton btnFolderPath = new JButton("...");
+            btnFolderPath.setToolTipText(RESTConst.SELECT_FOLDER);
+            btnFolderPath.addActionListener(this);
+            c.add(btnFolderPath);
+        }
         global.add(c);
 
         // Hostname Field
@@ -141,19 +139,26 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         txtfldComp2 = new JTextField(20);
         txtfldComp2.setPreferredSize(new Dimension(20, 25));
         txtfldComp2.addActionListener(this);
-        txtfldComp2.addFocusListener(myFocusListener);
+        //txtfldComp2.addFocusListener(myFocusListener);
+        txtfldList.add(txtfldComp2);
         txtfldComp2.setToolTipText(component2);
         c1.add(label2);
         c1.add(txtfldComp2);
+        if (pSetting.getConfigType() == ConfigType.OUTPUT) {
+            JButton btnFilePath = new JButton("...");
+            btnFilePath.setToolTipText(RESTConst.SELECT_FILE);
+            btnFilePath.addActionListener(this);
+            c1.add(btnFilePath);
+        }
         global.add(c1);
 
-        if (pSetting.GetConfigType() == ConfigType.SERVER) {
+        if (pSetting.getConfigType() == ConfigType.SERVER) {
             JPanel panel = makeAdditionalComponentPanel(RESTConst.URL);
             global.add(panel);
-        } else if (pSetting.GetConfigType() == ConfigType.INPUT) {
+        } else if (pSetting.getConfigType() == ConfigType.INPUT) {
             JPanel panel = makeAdditionalComponentPanel(RESTConst.LOCALPATH);
             global.add(panel);
-        } else if (pSetting.GetConfigType() == ConfigType.OUTPUT) {
+        } else if (pSetting.getConfigType() == ConfigType.OUTPUT) {
 //            JPanel panel = makeAdditionalComponentPanel(RESTConst.ERRORLOGPATH);
 //            global.add(panel);
         }
@@ -189,7 +194,7 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
                 });
         }
 
-        if (pSetting.GetNeedProgressBar()) {
+        if (pSetting.getNeedProgressBar()) {
             pb = new JProgressBar();
             pb.setVisible(false);
             global.add(pb);
@@ -199,7 +204,11 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         this.setBorder(BorderFactory.createTitledBorder(null, mainTitle, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
     }
 
-    // Configure the gui based on the setting passed in.
+    /**
+     * Configure the gui based on the setting passed in.
+     * @param type
+     * @return panel that is created.
+     */
     public JPanel makePanelForSettings(ConfigType type) {
         JPanel b1 = null;
         if (type.equals(ConfigType.INPUT)) {
@@ -227,6 +236,11 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         return b1;
     }
 
+    /**
+     * Add a panel that has a label and a text field
+     * @param componentName
+     * @return panel that is created.
+     */
     public JPanel makeAdditionalComponentPanel(String componentName) {
         JPanel panel = new JPanel();
         panel.setMaximumSize(new Dimension((int) panel.getMaximumSize().getWidth(), 50));
@@ -241,47 +255,81 @@ public class BoxLayoutTemplate extends JPanel implements ActionListener {
         return panel;
     }
 
-    public void actionPerformed(ActionEvent e) {
-        System.out.print("Global Action triggered.\n");
+    /**
+     *
+     */
+    public void ShowPanelSettingOnGUI() {
+        for (int i = 0; i < txtfldList.size(); i++) {
+            if (txtfldList.get(i).getToolTipText().equals(RESTConst.PROJECT)) {
+                txtfldList.get(i).setText(panelSetting.getWcProject());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.DOCUMENT)) {
+                txtfldList.get(i).setText(panelSetting.getWcDoc());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.LOCALPATH)) {
+                txtfldList.get(i).setText(panelSetting.getLocalPath());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.FOLDERPATH)) {
+                txtfldList.get(i).setText(panelSetting.getOutputFolderPath());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.FILENAME)) {
+                txtfldList.get(i).setText(panelSetting.getOutputFilename());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.ID)) {
+                txtfldList.get(i).setText(panelSetting.getWcID());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.PASSWORD)) {
+                txtfldList.get(i).setText(panelSetting.getWcPassword());
+            } else if (txtfldList.get(i).getToolTipText().equals(RESTConst.URL)) {
+                txtfldList.get(i).setText(panelSetting.getWcUrl());
+            }
+        }
     }
 
-//    public void UpdatePanelSetting(String tooltipStr, String val) {
-//        if (tooltipStr.equals(RESTConst.PROJECT)) {
-//            panelSetting.setWcProject(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.DOCUMENT)) {
-//            panelSetting.setWcDoc(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.FOLDERPATH)) {
-//            panelSetting.setOutputFolderPath(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.FILENAME)) {
-//            panelSetting.setOutputFilename(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.ERRORLOGPATH)) {
-//            panelSetting.setErrorLogFilePath(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.ID)) {
-//            panelSetting.setWcID(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.PASSWORD)) {
-//            panelSetting.setWcPassword(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.URL)) {
-//            panelSetting.setWcUrl(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        } else if (tooltipStr.equals(RESTConst.LOCALPATH)) {
-//            panelSetting.setLocalPath(val);
-//            System.out.print("Pass to PanelSetting: " + tooltipStr + " :" + val + ".\n");
-//        }
-//    }
-
+    /**
+     *
+     */
     public void UpdateTypes() {
-        for (int i = 0; i < comboBoxes.size(); i++){
-            if(comboBoxes.get(i).getToolTipText().equals(RESTConst.SERVER))
+        for (int i = 0; i < comboBoxes.size(); i++) {
+            if (comboBoxes.get(i).getToolTipText().equals(RESTConst.SERVER))
                 panelSetting.setServerType((CadServerType) comboBoxes.get(i).getSelectedItem());
-            else if(comboBoxes.get(i).getToolTipText().equals(RESTConst.INPUT))
+            else if (comboBoxes.get(i).getToolTipText().equals(RESTConst.INPUT))
                 panelSetting.setCadInputType((CadInputType) comboBoxes.get(i).getSelectedItem());
         }
     }
+
+    /**
+     *
+     * @param e
+     */
+    public void actionPerformed(ActionEvent e) {
+        System.out.print("Global Action triggered.\n");
+        Object src = e.getSource();
+        if (!(src instanceof JButton)) {
+            return;
+        }
+        JButton btn = (JButton) src;
+        if (!RESTConst.SELECT_FOLDER.equals(btn.getToolTipText()) && !RESTConst.SELECT_FILE.equals(btn.getToolTipText())) {
+            return;
+        }
+
+        String content = "";
+        String whatWeLookingFor = RESTConst.FOLDERPATH;
+        if (btn.getToolTipText().equals(RESTConst.SELECT_FOLDER)) {
+            whatWeLookingFor = RESTConst.FOLDERPATH;
+            content = UIUtil.getFolderPath(this, folderChooser);
+            if (StringUtils.isEmpty(content)) {
+                JOptionPane.showMessageDialog(this, "Cannot pick the folder.");
+                return;
+            }
+        } else if (btn.getToolTipText().equals(RESTConst.SELECT_FILE)) {
+            whatWeLookingFor = RESTConst.FILENAME;
+            content = UIUtil.getPath(this, fileChooser);
+            if (StringUtils.isEmpty(content)) {
+                JOptionPane.showMessageDialog(this, "Cannot pick the file.");
+                return;
+            }
+        }
+        for (int i = 0; i < txtfldList.size(); i++) {
+            if (txtfldList.get(i).getToolTipText().equals(whatWeLookingFor)) {
+                txtfldList.get(i).setText(content);
+                panelSetting.updatePanelSetting(txtfldList.get(i).getToolTipText(), content);
+            }
+        }
+    }
+
 }

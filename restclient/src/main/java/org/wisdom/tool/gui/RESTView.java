@@ -27,6 +27,7 @@ import org.wisdom.tool.gui.hist.HistView;
 import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.gui.rsp.RspView;
+import org.wisdom.tool.gui.util.UIUtil;
 
 /** 
  * @ClassName: RESTView 
@@ -41,7 +42,8 @@ public class RESTView extends JPanel
     private static final long serialVersionUID = 957993921065702646L;
 
     private static RESTView view = null;
-    
+    private static EasyView easyView = null;
+
     private EasyView vEasy = null;
 
     private ReqView vReq = null;
@@ -108,6 +110,9 @@ public class RESTView extends JPanel
         vReq = new ReqView();
         vRsp = new RspView();
         vHist = new HistView();
+
+        vEasy.setHeaders(UIUtil.getValuePair(vReq.getPnlHdr().getTabMdl().getValues()));
+        vEasy.setCookies(UIUtil.getValuePair(vReq.getPnlHdr().getTabMdl().getValues()));
 
         tp = new JTabbedPane();
         //Easy gui

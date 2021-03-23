@@ -6,6 +6,7 @@ import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.req.EasyView;
 import org.wisdom.tool.model.*;
 import org.wisdom.tool.model.CadJsonWrapper.CadTaskJson;
+import org.wisdom.tool.util.RESTUtil;
 
 
 import javax.swing.*;
@@ -14,36 +15,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
 
-    PanelSetting panelSetting = null;
     private JButton btnLoadJson;
+    private JButton btnSaveJson;
     private EasyView easyView;
-    private JFileChooser fc;
-
-    public PanelSetting getPanelSetting() {
-        return panelSetting;
-    }
-
-    public void setPanelSetting(PanelSetting panelSetting) {
-        this.panelSetting = panelSetting;
-    }
-
+    private JFileChooser fileChooser;
+    private Map<String, Boolean> options;
     String mainTitle = "";
-    String subTitle = "";
-    String component1 = "";
-    String component2 = "";
 
     private int width = 400;
     private int height = 100;
+
     private JComboBox<CadTaskType> cbCadTaskType = null;
-
-    private JPanel GetMainPanel() {
-        return this;
-    }
-
     public CadTaskBoxLayoutPanel(EasyView easyView) {
         this.init(easyView);
     }
@@ -60,35 +47,6 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
         global.setBorder(BorderFactory.createLineBorder(Color.black));
         global.setBackground(Color.white);
 
-        // Instantiate a FocusListener ONCE
-        java.awt.event.FocusListener myFocusListener = new java.awt.event.FocusListener() {
-            public void focusGained(java.awt.event.FocusEvent focusEvent) {
-                try {
-                    JTextField src = (JTextField) focusEvent.getSource();
-                    if (src.getText().equals("Text here!")) {
-                        src.setText("");
-                    }
-                    String tooltip = src.getToolTipText();
-                    System.out.print("TextField tooltip is " + tooltip + "\n");
-                } catch (ClassCastException ignored) {
-                    /* I only listen to JTextFields */
-                }
-            }
-
-            public void focusLost(java.awt.event.FocusEvent focusEvent) {
-                try {
-                    JTextField src = (JTextField) focusEvent.getSource();
-                    if (src.getText().equals("")) {
-                        src.setText("Text here!");
-                    } else {
-                        //UpdatePanelSetting(src.getToolTipText(), src.getText());
-                    }
-                } catch (ClassCastException ignored) {
-                    /* I only listen to JTextFields */
-                }
-            }
-        };
-
         JPanel b1 = new JPanel();
         b1.setMaximumSize(new Dimension((int) b1.getMaximumSize().getWidth(), 25));
 
@@ -99,6 +57,8 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
         cbCadTaskType = new JComboBox<CadTaskType>(CadTaskType.values());
         cbCadTaskType.setToolTipText(RESTConst.CADTASK);
         cbCadTaskType.setPreferredSize(new Dimension(150, 20));
+        //light weight popup can be hidden by other component near it. (They can be drawn above the light popup hence no show)
+        cbCadTaskType.setLightWeightPopupEnabled(false);
         cbCadTaskType.addActionListener (new ActionListener () {
             public void actionPerformed(ActionEvent e) {
                 String selectedValue = cbCadTaskType.getSelectedItem().toString();
@@ -106,12 +66,15 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
                 if(selectedValue.equals(CadTaskType.HELLO.toString()))
                 {
                     easyView.getPnlTaskOpt().setVisible(false);
+
                 }
                 else if(selectedValue.equals(CadTaskType.GEN_SVG.toString())){
                     easyView.getPnlTaskOpt().setVisible(true);
+
                 }
                 else if(selectedValue.equals(CadTaskType.GET_DESIGN_TYPE.toString())){
                     easyView.getPnlTaskOpt().setVisible(false);
+
                 }
                 easyView.getCadTaskBrain().ChangeCadTask((CadTaskType) cbCadTaskType.getSelectedItem());
             }
@@ -120,19 +83,36 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
         b1.add(cbCadTaskType);
 
         //TASK - Load json BUTTON
+        JPanel b2 = new JPanel();
+        b2.setMaximumSize(new Dimension((int) b2.getMaximumSize().getWidth(), 25));
         btnLoadJson = new JButton(RESTConst.LOAD_JSON_FILE);
         btnLoadJson.setName(RESTConst.LOAD_JSON_FILE);
         btnLoadJson.setToolTipText(RESTConst.LOAD_JSON_FILE);
         btnLoadJson.addActionListener(this);
 
+        btnSaveJson = new JButton(RESTConst.SAVE_JSON_FILE);
+        btnSaveJson.setName(RESTConst.SAVE_JSON_FILE);
+        btnSaveJson.setToolTipText(RESTConst.SAVE_JSON_FILE);
+        btnSaveJson.addActionListener(this);
+
+        b2.add(btnLoadJson);
+        b2.add(btnSaveJson);
+
         global.add(b1);
-        global.add(btnLoadJson);
+        global.add(b2);
         global.add(Box.createVerticalGlue());
 
         this.add(global);
         this.setBorder(BorderFactory.createTitledBorder(null, mainTitle, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
 
-        fc = new JFileChooser("c:\\Temp");
+        fileChooser = new JFileChooser("c:\\Temp");
+        fileChooser.setPreferredSize(new Dimension(800, 600));
+
+        options = new HashMap<String, Boolean>();
+    }
+
+    public void changeCadTaskCombo(CadTaskType type){
+        cbCadTaskType.setSelectedItem(type);
     }
 
 
@@ -145,35 +125,46 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
             return;
         }
         JButton btn = (JButton) src;
-        if (!RESTConst.LOAD_JSON_FILE.equals(btn.getName()))
+        if (!RESTConst.LOAD_JSON_FILE.equals(btn.getName()) && !RESTConst.SAVE_JSON_FILE.equals(btn.getName()))
         {
             return;
         }
-
-        String content = UIUtil.openFile(this, fc);
-        if (StringUtils.isEmpty(content))
+        if(RESTConst.LOAD_JSON_FILE.equals(btn.getName()))
         {
-            return;
-        }
-
-        //fill JSON Object
-        try {
-            // create object mapper instance
-            ObjectMapper mapper = new ObjectMapper();
-            File sf = fc.getSelectedFile();
-            // convert JSON file to map
-            Map<?, ?> map = mapper.readValue(sf, Map.class);
-
-            // print map entries
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                System.out.println(entry.getKey() + "=" + entry.getValue());
+            String content = UIUtil.openFile(this, fileChooser);
+            if (StringUtils.isEmpty(content)) {
+                return;
             }
 
-            CadTaskJson cadTaskJson = mapper.readValue(sf, CadTaskJson.class);
-            easyView.getCadTaskBrain().SetPanelsFromJSONObject(cadTaskJson);
-            easyView.UpdateGUI();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            //Fill JSON Object
+            try {
+                // create object mapper instance
+                ObjectMapper mapper = new ObjectMapper();
+                File sf = fileChooser.getSelectedFile();
+                // convert JSON file to map
+                Map<?, ?> map = mapper.readValue(sf, Map.class);
+
+                // print map entries
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    System.out.println(entry.getKey() + "=" + entry.getValue());
+                }
+
+                CadTaskJson cadTaskJson = mapper.readValue(sf, CadTaskJson.class);
+                easyView.getCadTaskBrain().setCadTaskJsonObj(cadTaskJson);
+                easyView.getCadTaskBrain().setPanelsFromJSONObject(cadTaskJson);
+                easyView.UpdateGUI();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if(RESTConst.SAVE_JSON_FILE.equals(btn.getName())) {
+            int retVal = fileChooser.showSaveDialog(this);
+            if (JFileChooser.APPROVE_OPTION != retVal)
+            {
+                return;
+            }
+            File newJsonFile = fileChooser.getSelectedFile();
+            RESTUtil.toJsonFile(newJsonFile, easyView.getCadTaskBrain().buildJsonObj());
         }
     }
 }

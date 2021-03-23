@@ -16,6 +16,7 @@
 package org.wisdom.tool.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +31,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -37,11 +44,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.*;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -133,11 +140,39 @@ public final class RESTClient
     {
         CloseableHttpResponse hr = null;
         HttpRsp rsp = new HttpRsp();
+        HttpHost target = new HttpHost("https://cad.next.dev.cloudi.city", -1,"https");
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(
+                new AuthScope(target.getHostName(), target.getPort()),
+                new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
+        );
+
+        RequestConfig globalConfig = RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.DEFAULT)
+                .build();
+        CloseableHttpClient httpClient = HttpClientBuilder.create()
+                .setDefaultCredentialsProvider(provider)
+                .setDefaultRequestConfig(globalConfig)
+                .build();
+
+        RequestConfig localConfig = RequestConfig.copy(globalConfig)
+                .setCookieSpec(CookieSpecs.STANDARD)
+                .build();
+        req.setConfig(localConfig);
+
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(target, new BasicScheme());
+
+        HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
 
         try
         {
             /* Send HTTP request */
-            hr = hc.execute(req);
+            hr = httpClient.execute(target, req, localContext); //hc.execute(req);
+            // 401 if wrong user/password
+            System.out.println(hr.getStatusLine().getStatusCode());
+
             HttpEntity he = hr.getEntity();
             if (null != he)
             {
@@ -250,6 +285,10 @@ public final class RESTClient
                     hrb.setHeader(e.getKey(), e.getValue());
                 }
             }
+//
+//            UsernamePasswordCredentials creds = new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21");
+//            Header header = new BasicScheme(StandardCharsets.UTF_8).authenticate(creds , hrb, null);
+//            hrb.addHeader( header);
 
             /* Set HTTP cookies */
             if (MapUtils.isNotEmpty(req.getCookies()))
@@ -270,7 +309,8 @@ public final class RESTClient
             }
 
             /* Execute HTTP request */
-            hrb.setConfig(rc);
+            //hrb.setConfig(rc);
+
             rsp = this.exec(hrb);
             rsp.setRawTxt(req.toRawTxt() + rsp.toRawTxt());
         }

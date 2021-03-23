@@ -7,7 +7,6 @@ import org.wisdom.tool.gui.util.BoxLayoutTemplate;
 import org.wisdom.tool.gui.util.CadTaskBoxLayoutPanel;
 import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.model.*;
-import org.wisdom.tool.model.CadJsonWrapper.CadTaskJson;
 import org.wisdom.tool.thread.RESTThd;
 
 import javax.swing.*;
@@ -15,6 +14,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class EasyView extends JPanel implements ActionListener {
     private static final long serialVersionUID = -1299418241312495718L;
@@ -24,8 +25,8 @@ public class EasyView extends JPanel implements ActionListener {
     private ImageIcon iconStart = null;
     private ImageIcon iconStop = null;
 
-    private JComboBox<CadTaskType> cbTask = null;
     private JComboBox<CadServerType> cbServerType = null;
+    ArrayList<JCheckBox> optCheckboxes = new ArrayList<JCheckBox>();
 
     private Panel pnlTask = null;
     private JPanel pnlTaskOpt = null;
@@ -34,10 +35,7 @@ public class EasyView extends JPanel implements ActionListener {
     CadTaskBrain cadTaskBrain = null;
     private RESTThd reqThd = null;
 
-    private JButton btnStart = null;
-    private JTextField txtfldWcPath = null;
-    private JTextField txtfldWcID = null;
-    private JTextField txtfldWcPassword = null;
+    private JButton btnEasyStart = null;
 
     private BoxLayoutTemplate pnlServer = null;
     private BoxLayoutTemplate pnlInput = null;
@@ -47,31 +45,65 @@ public class EasyView extends JPanel implements ActionListener {
     private PanelSetting inputPnlSetting;
     private PanelSetting outputPnlSetting;
 
+    Map<String, String> headers;
+    Map<String, String> cookies;
+
     //Getter and Setter
-    public EasyView() {  this.init(); }
-    public ImageIcon getIconStart() { return iconStart; }
+    public EasyView() {
+        this.init();
+    }
+
+    public ImageIcon getIconStart() {
+        return iconStart;
+    }
+
     public ImageIcon getIconStop() {
         return iconStop;
     }
 
-    public JComboBox<CadTaskType> getCbTask() {
-        return cbTask;
-    }
     public JComboBox<CadServerType> getCbServerType() {
         return cbServerType;
     }
 
-    public JButton getBtnStart() {
-        return btnStart;
+    public JButton getBtnEasyStart() {
+        return btnEasyStart;
     }
-    public Panel getPnlTask() {
-        return pnlTask;
+
+    public BoxLayoutTemplate getPnlServer() {
+        return pnlServer;
     }
+
+    public BoxLayoutTemplate getPnlInput() {
+        return pnlInput;
+    }
+
+    public BoxLayoutTemplate getPnlOutput() {
+        return pnlOutput;
+    }
+
+    public Map<String, String> getHeader() {
+        return headers;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
+    }
+
+    public void setHeaders(Map<String, String> rvHeaders) {
+        this.headers = rvHeaders;
+    }
+
+    public void setCookies(Map<String, String> rvCookies) {
+        this.cookies = rvCookies;
+    }
+
     public JPanel getPnlTaskOpt() {
         return pnlTaskOpt;
     }
 
-    public CadTaskBrain getCadTaskBrain() { return cadTaskBrain; }
+    public CadTaskBrain getCadTaskBrain() {
+        return cadTaskBrain;
+    }
 
 
     /**
@@ -92,37 +124,36 @@ public class EasyView extends JPanel implements ActionListener {
         iconStart = UIUtil.getIcon(RESTConst.ICON_START);
         iconStop = UIUtil.getIcon(RESTConst.ICON_STOP);
         //TASK - START BUTTON
-        btnStart = new JButton(iconStart);
-        btnStart.setName(RESTConst.START);
-        btnStart.setToolTipText(RESTConst.START);
-        btnStart.addActionListener(this);
-        //TASK - COMBOBOX
-        cbTask = new JComboBox<CadTaskType>(CadTaskType.values());
+        btnEasyStart = new JButton(iconStart);
+        btnEasyStart.setName(RESTConst.START);
+        btnEasyStart.setToolTipText(RESTConst.START);
+        btnEasyStart.addActionListener(this);
 
-        cadTaskBrain =  new CadTaskBrain();
-        cadTaskBrain.ChangeCadTask((CadTaskType) cbTask.getSelectedItem());
+        cadTaskBrain = new CadTaskBrain();
 
         //TASK LABEL
-        JLabel lbCadTask = new JLabel(RESTConst.CADTASK + ": ");
+        //JLabel lbCadTask = new JLabel(RESTConst.CADTASK + ": ");
         JLabel lbCadTaskOpt = new JLabel(RESTConst.OPTIONAL);
-        JCheckBox optESVG = new JCheckBox(RESTConst.ESVG);
 
         //Task panel
         pnlCadTask = new CadTaskBoxLayoutPanel(this);
-        //        pnlTaskType.setLayout(new FlowLayout(FlowLayout.CENTER));
-        //        pnlTaskType.add(lbCadTask);
-        //        pnlTaskType.add(cbTask);
 
         pnlTaskOpt = new JPanel();
         pnlTaskOpt.setLayout(new FlowLayout(FlowLayout.CENTER));
 
         pnlTaskOpt.add(lbCadTaskOpt);
+
+        //Add options to the panel.
+        JCheckBox optESVG = new JCheckBox(RESTConst.ESVG);
+        optESVG.setToolTipText(RESTConst.ESVG);
+        optESVG.addActionListener(this);
+        optCheckboxes.add(optESVG);
         pnlTaskOpt.add(optESVG);
         pnlTaskOpt.setVisible(false);
 
         pnlTask.add(pnlCadTask, BorderLayout.WEST);
         pnlTask.add(pnlTaskOpt, BorderLayout.CENTER);
-        pnlTask.add(btnStart, BorderLayout.EAST);
+        pnlTask.add(btnEasyStart, BorderLayout.EAST);
 
         //Server setting panel
         serverPnlSetting = cadTaskBrain.getPanelSettingForServer();
@@ -151,29 +182,7 @@ public class EasyView extends JPanel implements ActionListener {
      * @Description: Set HTTP request panel view
      */
     public void setReqView(HttpReq req) {
-//        if (null == req)
-//        {
-//            return;
-//        }
-//
-//        String ctype = StringUtils.EMPTY;
-//        String charset = StringUtils.EMPTY;
-//
-//        String typeHdr = req.getHeaders().get(RESTConst.CONTENT_TYPE);
-//        if (StringUtils.isNotBlank(typeHdr))
-//        {
-//            ctype = StringUtils.substringBefore(typeHdr, ";");
-//            charset = StringUtils.substringAfter(typeHdr, "=");
-//        }
-//
-//        cbUrl.setSelectedItem(req.getUrl());
-//        cbMtd.setSelectedIndex(req.getMethod().getMid());
-//
-//        pnlBody.getCbBodyType().setSelectedItem(0);
-//        pnlBody.getTxtAraBody().setText(req.getBody());
-//        pnlBody.getCbContentType().setSelectedItem(ctype);
-//        pnlBody.getCbCharset().setSelectedItem(charset);
-//
+
 //        // Set headers
 //        pnlHdr.getTabMdl().clear();
 //        Map<String, String> hdrs = req.getHeaders();
@@ -205,7 +214,6 @@ public class EasyView extends JPanel implements ActionListener {
 //                pnlCookie.getTabMdl().insertRow(e.getKey(), e.getValue());
 //            }
 //        }
-
     }
 
     /**
@@ -216,15 +224,26 @@ public class EasyView extends JPanel implements ActionListener {
      * @Description: reset request view
      */
     public void reset() {
-//        // Reset URL
-//        cbMtd.setSelectedIndex(0);
-//        cbUrl.setSelectedItem(StringUtils.EMPTY);
-//
-//        // Reset body
-//        pnlBody.getCbBodyType().setSelectedItem(0);
-//        pnlBody.getTxtAraBody().setText(StringUtils.EMPTY);
-//        pnlBody.getCbContentType().setSelectedIndex(0);
-//        pnlBody.getCbCharset().setSelectedIndex(0);
+        pnlCadTask.changeCadTaskCombo(CadTaskType.HELLO);
+
+        ArrayList<JTextField> inputTxtfldList = pnlInput.getTxtfldList();
+        for (int i = 0; i < inputTxtfldList.size(); i++) {
+            inputTxtfldList.get(i).setText("");
+        }
+
+        ArrayList<JTextField> outputTxtfldList = pnlOutput.getTxtfldList();
+        for (int i = 0; i < outputTxtfldList.size(); i++) {
+            outputTxtfldList.get(i).setText("");
+        }
+
+        ArrayList<JTextField> serverTxtfields = pnlServer.getTxtfldList();
+        for (int i = 0; i < serverTxtfields.size(); i++) {
+            serverTxtfields.get(i).setText("");
+        }
+
+        this.cadTaskBrain.getPanelSettingForServer().reset();
+        this.cadTaskBrain.getPanelSettingForInput().reset();
+        this.cadTaskBrain.getPanelSettingForOutput().reset();
 //
 //        // Reset header and cookie
 //        pnlHdr.getTabMdl().clear();
@@ -281,70 +300,84 @@ public class EasyView extends JPanel implements ActionListener {
      * @Title: btnStartPerformed
      * @Description: Performed start button
      */
-    private void btnStartPerformed(Object src) {
-        if (!(src instanceof JButton))
-        {
+    private void btnEasyStartPerformed(Object src) {
+        if (!(src instanceof JButton)) {
             return;
         }
         //ask brain to create json for the upcoming process.
-        String jsonStr = cadTaskBrain.GetJsonString();
+        String jsonStr = cadTaskBrain.getJsonString();
 
         JButton btn = (JButton) src;
-        if (this.iconStop.equals(btn.getIcon()))
-        {
-            if (null == this.reqThd)
-            {
+        if (this.iconStop.equals(btn.getIcon())) {
+            if (null == this.reqThd) {
                 return;
             }
 
             this.reqThd.interrupt();
 
-            this.btnStart.setIcon(this.iconStart);
-            this.btnStart.setToolTipText(RESTConst.START);
-            this.btnStart.setEnabled(true);
+            this.btnEasyStart.setIcon(this.iconStart);
+            this.btnEasyStart.setToolTipText(RESTConst.START);
+            this.btnEasyStart.setEnabled(true);
 
             pnlServer.getProgressBar().setVisible(false);
             pnlServer.getProgressBar().setIndeterminate(false);
             return;
         }
 
-        try
-        {
-            this.btnStart.setIcon(this.iconStop);
-            this.btnStart.setToolTipText(RESTConst.STOP);
-            this.btnStart.setEnabled(false);
+        try {
+            this.btnEasyStart.setIcon(this.iconStop);
+            this.btnEasyStart.setToolTipText(RESTConst.STOP);
+            this.btnEasyStart.setEnabled(false);
 
             this.reqThd = new RESTThd();
             this.reqThd.SetRequestMode(1);
             this.reqThd.setName(RESTConst.REQ_THREAD);
             this.reqThd.start();
 
-            this.btnStart.setEnabled(true);
+            this.btnEasyStart.setEnabled(true);
 
             pnlServer.getProgressBar().setVisible(true);
             pnlServer.getProgressBar().setIndeterminate(true);
-        }
-        catch(Throwable e)
-        {
+        } catch (Throwable e) {
             log.error("Failed to submit HTTP request.", e);
         }
     }
 
+    /**
+     * @param e
+     */
     public void actionPerformed(ActionEvent e) {
         System.out.print("EasyView : Action Triggered\n");
-//        this.bdyPerformed(e.getSource());
         System.out.print("EasyView : ProgressBar initiated\n");
-        this.btnStartPerformed(e.getSource());
+        Object src = e.getSource();
+        if ((src instanceof JButton)) {
+            this.btnEasyStartPerformed(e.getSource());
+        } else if (src instanceof JCheckBox) {
+            JCheckBox optCheckbox = (JCheckBox) src;
+            cadTaskBrain.setSVGOption(optCheckbox.isSelected());
+        }
     }
 
+    /**
+     *
+     */
     public void UpdateGUI() {
-        cbTask.setSelectedItem(cadTaskBrain.getCadTaskType());
-        System.out.println("UPDATE TASK Combo to: "+ cadTaskBrain.getCadTaskType().toString());
+        pnlCadTask.changeCadTaskCombo(cadTaskBrain.getCadTaskType());
+        for (int i = 0; i < optCheckboxes.size(); i++) {
+            if (optCheckboxes.get(i).getToolTipText().equals(RESTConst.ESVG)) {
+                optCheckboxes.get(i).setSelected(cadTaskBrain.getSVGOption());
+            }
+        }
+        System.out.println("UPDATE TASK Combo to: " + cadTaskBrain.getCadTaskType().toString());
         serverPnlSetting = cadTaskBrain.getPanelSettingForServer();
         inputPnlSetting = cadTaskBrain.getPanelSettingForInput();
         outputPnlSetting = cadTaskBrain.getPanelSettingForOutput();
         System.out.println("Server setting: " + serverPnlSetting.toString() + ", "
                 + "Input setting: " + inputPnlSetting.toString() + ", "
                 + "Output setting: " + outputPnlSetting.toString());
+
+        pnlServer.ShowPanelSettingOnGUI();
+        pnlInput.ShowPanelSettingOnGUI();
+        pnlOutput.ShowPanelSettingOnGUI();
     }
 }
