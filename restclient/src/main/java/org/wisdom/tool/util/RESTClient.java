@@ -140,38 +140,10 @@ public final class RESTClient
     {
         CloseableHttpResponse hr = null;
         HttpRsp rsp = new HttpRsp();
-        HttpHost target = new HttpHost("https://cad.next.dev.cloudi.city", -1,"https");
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(
-                new AuthScope(target.getHostName(), target.getPort()),
-                new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
-        );
-
-        RequestConfig globalConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.DEFAULT)
-                .build();
-        CloseableHttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultCredentialsProvider(provider)
-                .setDefaultRequestConfig(globalConfig)
-                .build();
-
-        RequestConfig localConfig = RequestConfig.copy(globalConfig)
-                .setCookieSpec(CookieSpecs.STANDARD)
-                .build();
-        req.setConfig(localConfig);
-
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(target, new BasicScheme());
-
-        HttpClientContext localContext = HttpClientContext.create();
-        localContext.setAuthCache(authCache);
-
         try
         {
             /* Send HTTP request */
-            hr = httpClient.execute(target, req, localContext); //hc.execute(req);
-            // 401 if wrong user/password
-            System.out.println(hr.getStatusLine().getStatusCode());
+            hr = hc.execute(req);
 
             HttpEntity he = hr.getEntity();
             if (null != he)
@@ -216,12 +188,12 @@ public final class RESTClient
     * @Title: req 
     * @Description: Do HTTP request 
     * @param @param req
-    * @param @return     
-    * @return HttpRsp    
+    * @param @return
+    * @return HttpRsp
     * @throws
      */
     public HttpRsp exec(HttpReq req)
-    {        
+    {
         log.info("Start HTTP request: \r\n" + req);
         long time = System.currentTimeMillis();
         HttpRsp rsp = new HttpRsp();
@@ -245,7 +217,7 @@ public final class RESTClient
             log.error(rsp.getRawTxt());
             return rsp;
         }
-        
+
         try
         {
             /* Set HTTP method */
@@ -285,10 +257,6 @@ public final class RESTClient
                     hrb.setHeader(e.getKey(), e.getValue());
                 }
             }
-//
-//            UsernamePasswordCredentials creds = new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21");
-//            Header header = new BasicScheme(StandardCharsets.UTF_8).authenticate(creds , hrb, null);
-//            hrb.addHeader( header);
 
             /* Set HTTP cookies */
             if (MapUtils.isNotEmpty(req.getCookies()))
@@ -309,7 +277,7 @@ public final class RESTClient
             }
 
             /* Execute HTTP request */
-            //hrb.setConfig(rc);
+            hrb.setConfig(rc);
 
             rsp = this.exec(hrb);
             rsp.setRawTxt(req.toRawTxt() + rsp.toRawTxt());
@@ -324,6 +292,36 @@ public final class RESTClient
         log.info("Done HTTP request: \r\n" + rsp);
         return rsp;
     }
+
+//    public HttpRsp exec(HttpReq req) throws Exception{
+//        HttpRsp rsp = new HttpRsp();
+//        String url="https://cad.next.dev.cloudi.city/rest/ECadServer/Hello";
+//
+//        Connection.Response initial=Jsoup.connect(url)
+//                .method(Connection.Method.GET)
+//                .execute();
+//        Document key=initial.parse();
+//
+//        Connection.Response login=Jsoup.connect("https://login.cloudi.city/")
+//                .cookies(initial.cookies())
+//                .data("id","yoonsoo.park@esko.com", "password", "yopaCloud21")
+//                .method(Connection.Method.GET)
+//                .timeout(5000)
+//                .execute();
+//
+//        String returnVal = Jsoup.connect(url)
+//                .cookies(initial.cookies())
+//                .data("id","yoonsoo.park@esko.com", "password", "yopaCloud21")
+//                .method(Method.GET)
+//                .timeout(5000)
+//                .execute()
+//                .body();
+//
+//        System.out.println("JSON RETURN: "+returnVal);
+//
+//        return rsp;
+//    }
+
 
     /**
     * 

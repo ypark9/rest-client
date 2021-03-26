@@ -83,7 +83,12 @@ public final class TestUtil
             }
 
             HttpReq req = hist.getReq();
-            HttpRsp rsp = RESTClient.getInstance().exec(req);
+            HttpRsp rsp = null;
+            try {
+                rsp = RESTClient.getInstance().exec(req);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             RESTUtil.result(hists, hist, rsp);
         }
         report(hists);

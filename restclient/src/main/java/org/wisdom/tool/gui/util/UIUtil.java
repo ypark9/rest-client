@@ -376,7 +376,12 @@ public class UIUtil
         }
 
         HttpReq req = new HttpReq(method, url, body, headers, cookies);
-        HttpRsp rsp = RESTClient.getInstance().exec(req);
+        HttpRsp rsp = null;
+        try {
+            rsp = RESTClient.getInstance().exec(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println(req.toString());
         RESTView.getView().getRspView().setRspView(rsp);
         RESTView.getView().getHistView().setHistView(req, rsp);
@@ -432,7 +437,12 @@ public class UIUtil
 
         HttpReq req = new HttpReq(method, url, body, headers, cookies);
         System.out.println(req.toString());
-        HttpRsp rsp = RESTClient.getInstance().exec(req);
+        HttpRsp rsp = null;
+        try {
+            rsp = RESTClient.getInstance().exec(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         RESTView.getView().getRspView().setRspView(rsp);
         RESTView.getView().getHistView().setHistView(req, rsp);

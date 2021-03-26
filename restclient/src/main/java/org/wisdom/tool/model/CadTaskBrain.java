@@ -80,7 +80,7 @@ public class CadTaskBrain {
     public void ChangeCadTask(CadTaskType task) {
         this.method = task.getHttpMethod();
         System.out.print("CadTaskBrain : " + method + "\n");
-        url = RESTConst.CLOUD_URL;
+        url = RESTConst.LOCAL_URL;
         url += task.getEnd();
         System.out.print("CadTaskBrain : " + url + "\n");
 
