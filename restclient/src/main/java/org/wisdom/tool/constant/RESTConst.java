@@ -429,6 +429,7 @@ public class RESTConst
     public final static String WC04 = "http:\\\\rdvmuswc04\\WebCenter_Inst";
     public final static String WC05 = "http:\\\\rdvmuswc05\\WebCenter_Inst";
     public final static String CLOUD_URL = "https://cad.next.dev.cloudi.city/rest/ECadServer/";
+    public final static String CLOUD_LOGIN_URL = "https://login.cloudi.city/login/login.htm";
     public final static String LOCAL_URL = "http://localhost:8080/ia-cad-service/rest/CadServer/";
 
     public final static String WEBCENTER = "WebCenter";
