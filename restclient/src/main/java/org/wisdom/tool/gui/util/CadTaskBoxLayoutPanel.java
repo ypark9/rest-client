@@ -25,12 +25,16 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
     private EasyView easyView;
     private JFileChooser fileChooser;
     private Map<String, Boolean> options;
+
     String mainTitle = "";
+    String addressToConnect = "";
 
     private int width = 400;
-    private int height = 100;
+    private int height = 150;
 
     private JComboBox<CadTaskType> cbCadTaskType = null;
+    private JTextField tfConnectTo = null;
+
     public CadTaskBoxLayoutPanel(EasyView easyView) {
         this.init(easyView);
     }
@@ -46,6 +50,50 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
         global.setBounds(8, 5, width, height);
         global.setBorder(BorderFactory.createLineBorder(Color.black));
         global.setBackground(Color.white);
+
+        // Instantiate a FocusListener ONCE
+        java.awt.event.FocusListener myFocusListener = new java.awt.event.FocusListener() {
+            public void focusGained(java.awt.event.FocusEvent focusEvent) {
+                try {
+                    JTextField src = (JTextField) focusEvent.getSource();
+                    if (src.getText().equals("Text here!")) {
+                        src.setText("");
+                    }
+                    String tooltip = src.getToolTipText();
+                    System.out.print("TextField tooltip is " + tooltip + "\n");
+                } catch (ClassCastException ignored) {
+                    /* I only listen to JTextFields */
+                }
+            }
+
+            public void focusLost(java.awt.event.FocusEvent focusEvent) {
+                try {
+                    JTextField src = (JTextField) focusEvent.getSource();
+                    if (src.getText().equals("")) {
+                        src.setText("Input Server address. e.g https://cad.next.dev.cloudi.city/");
+                    } else {
+                        easyView.getCadTaskBrain().setServerURL(src.getText());
+                        System.out.println(new StringBuilder().append("The address we are heading to: ").append(src.getText()).toString());
+                    }
+                } catch (ClassCastException ignored) {
+                    /* I only listen to JTextFields */
+                }
+            }
+        };
+
+        JPanel b0 = new JPanel();
+        b0.setMaximumSize(new Dimension((int) b0.getMaximumSize().getWidth(), (int) b0.getMaximumSize().getHeight()));
+        JLabel lbConnectTo = new JLabel(RESTConst.CONNECT_TO);
+        lbConnectTo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lbConnectTo.setFont(new Font("tahoma", Font.BOLD, 12));
+
+        tfConnectTo = new JTextField(30);
+        tfConnectTo.setToolTipText(RESTConst.CONNECT_TO);
+        tfConnectTo.addFocusListener(myFocusListener);
+        tfConnectTo.setText(RESTConst.LOCAL_URL);
+        easyView.getCadTaskBrain().setServerURL(RESTConst.LOCAL_URL);
+        b0.add(lbConnectTo);
+        b0.add(tfConnectTo);
 
         JPanel b1 = new JPanel();
         b1.setMaximumSize(new Dimension((int) b1.getMaximumSize().getWidth(), 25));
@@ -98,6 +146,7 @@ public class CadTaskBoxLayoutPanel extends JPanel implements ActionListener {
         b2.add(btnLoadJson);
         b2.add(btnSaveJson);
 
+        global.add(b0);
         global.add(b1);
         global.add(b2);
         global.add(Box.createVerticalGlue());

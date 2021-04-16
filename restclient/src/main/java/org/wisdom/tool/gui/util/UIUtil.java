@@ -15,31 +15,6 @@
  */
 package org.wisdom.tool.gui.util;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -56,6 +31,17 @@ import org.wisdom.tool.gui.req.ReqView;
 import org.wisdom.tool.model.*;
 import org.wisdom.tool.util.RESTClient;
 import org.wisdom.tool.util.RESTUtil;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.io.*;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
 
 /** 
 * @ClassName: UIUtil 
@@ -243,6 +229,49 @@ public class UIUtil
     }
 
     /**
+     * Used for outputting Cad API response
+     * @param parent the view you want to put JFileChooser above.
+     * @return the location user picked
+     */
+    public static File getSaveLocation(Component parent) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        if(parent instanceof EasyView) {
+            FileNameExtensionFilter filter = null;
+            if(((EasyView) parent).getCadTaskBrain().getCadTaskType() == CadTaskType.GEN_SVG){
+                filter = new FileNameExtensionFilter("SVG format", "svg");
+            }else if(((EasyView) parent).getCadTaskBrain().getCadTaskType() == CadTaskType.GET_DESIGN_TYPE) {
+                filter = new FileNameExtensionFilter("JSON", "json");
+            }
+            if(filter != null)
+                chooser.setFileFilter(filter);
+        }
+
+        int result = chooser.showSaveDialog(parent);
+
+        if (result == chooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Write the content(String) into the file you pass.
+     * @param file File that will contains the content to write in.
+     * @param content String to put in the file
+     * @throws FileNotFoundException
+     */
+    public static void writeOutput(File file, String content)
+            throws FileNotFoundException {
+
+        PrintWriter writer =
+                new PrintWriter(file);
+        writer.println(content);
+        writer.close();
+    }
+
+    /**
     * 
     * @Title: saveFile 
     * @Description: Save HTTP history to file 
@@ -354,8 +383,18 @@ public class UIUtil
 
     public static void CadTaskSubmit(EasyView easyView){
         CadTaskBrain cadTaskBrain = easyView.getCadTaskBrain();
-        String url = cadTaskBrain.getUrl();
-        //System.out.println("Request sent to: " + url);
+        String url = cadTaskBrain.getServerUrl();
+        url += cadTaskBrain.getCadTaskType().getURLTaskName();
+        //check an user forgot to put the slash at the end of the address
+        boolean isBackSlashLast = url.endsWith("\\");
+        if(isBackSlashLast) {
+            url = url.substring(0, url.length() - 1);
+            url += "/";
+        }
+        boolean isSlashLast = url.endsWith("/");
+        if(!isSlashLast)
+            url += "/";
+       //System.out.println("Request sent to: " + url);
         if (StringUtils.isBlank(url))
         {
             return;
@@ -363,7 +402,7 @@ public class UIUtil
 
         HttpMethod method = HttpMethod.valueOf(cadTaskBrain.getMethod());
         String charset = "UTF-8";
-        String ctype = "application/json";
+        String ctype = "text/plain";
         String body = cadTaskBrain.getJsonString();
 
         Map<String, String> headers = easyView.getHeader();
@@ -385,6 +424,15 @@ public class UIUtil
         System.out.println(req.toString());
         RESTView.getView().getRspView().setRspView(rsp);
         RESTView.getView().getHistView().setHistView(req, rsp);
+
+        //Let user knows that output is ready.
+        JOptionPane.showMessageDialog(easyView, "Output is successfully created. Check Response tab.");
+        File file = getSaveLocation(easyView);
+        try {
+            writeOutput(file,  rsp.getBody().toString());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -15,20 +15,6 @@
  */
 package org.wisdom.tool.apidoc;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -42,15 +28,15 @@ import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.cache.RESTCache;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.gui.util.UIUtil;
-import org.wisdom.tool.model.APIDoc;
-import org.wisdom.tool.model.APIItem;
-import org.wisdom.tool.model.APIReq;
-import org.wisdom.tool.model.APIRsp;
-import org.wisdom.tool.model.APISum;
-import org.wisdom.tool.model.HttpHist;
-import org.wisdom.tool.model.HttpHists;
-import org.wisdom.tool.model.HttpMethod;
+import org.wisdom.tool.model.*;
 import org.wisdom.tool.util.RESTUtil;
+
+import java.awt.*;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
 
 /** 
 * @ClassName: APIDocUtil 

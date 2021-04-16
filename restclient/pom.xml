@@ -19,12 +19,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wisdom.tool</groupId>
     <artifactId>restclient</artifactId>
-    <version>1.2</version>
-    <description>This is Wisdom RESTClient</description>
-    <url>http://www.wdom.net</url>
+    <version>1.2.1</version>
+    <description>This is CAD API Tester</description>
+    <url>https://www.esko.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <jackson.version>2.10.0</jackson.version>
         <httpcomponent.version>4.5.2</httpcomponent.version>
     </properties>
@@ -92,16 +92,6 @@
         </dependency>
         <!-- jackson end -->
         <dependency>
-            <groupId>com.twelvemonkeys.imageio</groupId>
-            <artifactId>imageio-batik</artifactId> <!-- svg -->
-            <version>3.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>batik</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <version>1.6-1</version>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations-java5</artifactId>
             <version>RELEASE</version>
@@ -141,6 +131,70 @@
                         <goals>
                             <goal>assembly</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals><goal>launch4j</goal></goals>
+                        <configuration>
+                            <headerType>console</headerType>
+                            <outfile>target/cadapitester.exe</outfile>
+                            <jar>target/restclient-1.2.1.jar</jar>
+                            <errTitle>cadapitester</errTitle>
+                            <classPath>
+                                <mainClass>org.wisdom.tool.RESTMain</mainClass>
+                                <addDependencies>false</addDependencies>
+                                <preCp>anything</preCp>
+                            </classPath>
+                            <jre>
+                                <minVersion>1.5.0</minVersion>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.2.3.4</fileVersion>
+                                <txtFileVersion>1.0.0</txtFileVersion>
+                                <fileDescription>Testing tool for CAD API</fileDescription>
+                                <copyright>YOPA</copyright>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0</txtProductVersion>
+                                <productName>Cad-Api-Tester</productName>
+                                <internalName>cadapitester</internalName>
+                                <originalFilename>cadapitester.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>l4j-gui</id>
+                        <phase>package</phase>
+                        <goals><goal>launch4j</goal></goals>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <outfile>target/cadapitester_gui.exe</outfile>
+                            <jar>target/restclient-1.2.1.jar</jar>
+                            <errTitle>enccg</errTitle>
+                            <classPath>
+                                <mainClass>org.wisdom.tool.RESTMain</mainClass>
+                            </classPath>
+                            <jre>
+                                <minVersion>1.5.0</minVersion>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.0.0.1</fileVersion>
+                                <txtFileVersion>1.0.1</txtFileVersion>
+                                <fileDescription>Cad Api Tester (GUI)</fileDescription>
+                                <copyright>YOPA</copyright>
+                                <productVersion>1.0.0.1</productVersion>
+                                <txtProductVersion>1.0.1</txtProductVersion>
+                                <productName>Cad_Api_Tester</productName>
+                                <internalName>cadapitester</internalName>
+                                <originalFilename>cadapitester_gui.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

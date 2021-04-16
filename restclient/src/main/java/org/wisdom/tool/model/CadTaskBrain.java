@@ -11,7 +11,7 @@ public class CadTaskBrain {
     private PanelSetting panelSettingForInput = null;
     private PanelSetting panelSettingForOutput = null;
 
-    String url = "";
+    String url = RESTConst.LOCAL_URL;
     String method = "";
     CadTaskType cadTaskType = CadTaskType.HELLO;
 
@@ -23,8 +23,16 @@ public class CadTaskBrain {
     WebCenter webCenter = null;
     WCDocument wcDoc = null;
 
-    public String getUrl() {
+    public String getServerUrl() {
         return url;
+    }
+
+    public void setServerURL(String urlToUpdate) {
+        url = urlToUpdate;
+        if(!url.endsWith("/"))
+            url += "/";
+        url += RESTConst.IA_CAD_URL;
+        System.out.println("Server address : " + url);
     }
 
     public String getMethod() {
@@ -42,10 +50,6 @@ public class CadTaskBrain {
     //PanelSettings
     public PanelSetting getPanelSettingForServer() {
         return panelSettingForServer;
-    }
-
-    public void setPanelSettingForServer(PanelSetting panelSettingForServer) {
-        this.panelSettingForServer = panelSettingForServer;
     }
 
     public PanelSetting getPanelSettingForInput() {
@@ -67,7 +71,7 @@ public class CadTaskBrain {
         //construct panel Setting to pass
         panelSettingForServer = new PanelSetting("", "WebCenter", RESTConst.ID, RESTConst.PASSWORD, ConfigType.SERVER);
         panelSettingForServer.setProgressBar(true);
-        panelSettingForInput = new PanelSetting(RESTConst.INPUT, "org.wisdom.tool.model.CadJsonWrapper.WCDocument", RESTConst.PROJECT, RESTConst.DOCUMENT, ConfigType.INPUT);
+        panelSettingForInput = new PanelSetting(RESTConst.INPUT, "", RESTConst.PROJECT, RESTConst.DOCUMENT, ConfigType.INPUT);
         panelSettingForOutput = new PanelSetting("Output", "Location", RESTConst.FOLDERPATH, RESTConst.FILENAME, ConfigType.OUTPUT);
 
         //init url to Hello task
@@ -80,10 +84,6 @@ public class CadTaskBrain {
     public void ChangeCadTask(CadTaskType task) {
         this.method = task.getHttpMethod();
         System.out.print("CadTaskBrain : " + method + "\n");
-        url = RESTConst.LOCAL_URL;
-        url += task.getEnd();
-        System.out.print("CadTaskBrain : " + url + "\n");
-
         setCadTaskType(task);
     }
 
@@ -93,33 +93,18 @@ public class CadTaskBrain {
     public void setOutputFolderPath(String path) {
         eCadServerTask.setOutputFolder(path);
     }
-
-    //Setting ServerContext
-    public void setServerContextObj(ServerContext context) {
-        eCadServerTask.setServerContext(context);
-    }
-
-    public void setWebCenterInServerContext(WebCenter wc) {
-        serverContext.setWebCenter(wc);
-    }
-
     public void setServerTypeInServerContext(String type) {
         serverContext.setType(type);
     }
-
-    //Setting WC obj
     public void setWCUsername(String id) {
         webCenter.setUsername(id);
     }
-
     public void setWCURL(String url) {
         webCenter.setURL(url);
     }
-
     public void setWCUserPassword(String password) {
         webCenter.setPassword(password);
     }
-
     public void setSVGOption(Boolean option) {
         SVGOptions svgOptions = new SVGOptions();
         svgOptions.setESVG(option);
@@ -139,29 +124,15 @@ public class CadTaskBrain {
     public void setTaskType(String name) {
         eCadServerTask.setTaskType(name);
     }
-
     public void setOutputFilename(String name) {
         eCadServerTask.setOutputFileName(name);
     }
-
     public void setRetErrFilePath(String path) {
         eCadServerTask.setRetErrFilePath(path);
     }
-
-    //Setting Input file obj
-    public void setInputFileObj(InputFile inputFile) {
-        eCadServerTask.setInputFile(inputFile);
-    }
-
     public void setTypeInInputFileObj(String inputType) {
         inputFile.setType(inputType);
     }
-
-    public void setWCDocInInputFileObj(WCDocument wcdoc) {
-        inputFile.setWCDocument(wcdoc);
-    }
-
-    //Setting WC document
     public void setProjectNameInWCDoc(String wcProjName) {
         wcDoc.setProjectName(wcProjName);
     }
@@ -335,7 +306,4 @@ public class CadTaskBrain {
         this.wcDoc = cadTaskJsonObj.getECadServerTask().getInputFile().getWCDocument();
     }
 
-    public CadTaskJson getCadTaskJsonObj() {
-        return cadTaskJsonObj;
-    }
 }

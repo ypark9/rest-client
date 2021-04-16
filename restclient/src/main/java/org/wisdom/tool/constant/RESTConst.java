@@ -113,6 +113,7 @@ public class RESTConst
     public static final String BROWSE = "Browse";
 
     public static final String URL = "URL";
+    public static final String CONNECT_TO = "Connect to: ";
 
     public static final String METHOD = "HTTP Method";
 
@@ -430,7 +431,8 @@ public class RESTConst
     public final static String WC05 = "http:\\\\rdvmuswc05\\WebCenter_Inst";
     public final static String CLOUD_URL = "https://cad.next.dev.cloudi.city/rest/ECadServer/";
     public final static String CLOUD_LOGIN_URL = "https://login.cloudi.city/login/login.htm";
-    public final static String LOCAL_URL = "http://localhost:8080/ia-cad-service/rest/CadServer/";
+    public final static String LOCAL_URL = "http://localhost:8080/";
+    public final static String IA_CAD_URL = "ia-cad-service/rest/api/v1/ECadServer/";
 
     public final static String WEBCENTER = "WebCenter";
     public final static String WCDOCUMENT = "WCDocument";

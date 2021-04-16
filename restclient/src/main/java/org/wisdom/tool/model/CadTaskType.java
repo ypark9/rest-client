@@ -39,10 +39,13 @@ public enum CadTaskType {
     /**
      * @return get the proper HTTP method
      */
-    public String getEnd(){
+    public String getURLTaskName(){
         String retVal = "ECadTask";
         if(this.mid == 0)
             retVal = "Hello";
+//        else if(this.mid == 3) {
+//            retVal = "ECadDocTask";
+//        }
         return retVal;
     }
 

@@ -73,26 +73,16 @@ public class EasyView extends JPanel implements ActionListener {
         return pnlServer;
     }
 
-    public BoxLayoutTemplate getPnlInput() {
-        return pnlInput;
-    }
-
-    public BoxLayoutTemplate getPnlOutput() {
-        return pnlOutput;
-    }
-
     public Map<String, String> getHeader() {
         return headers;
+    }
+    public void setHeaders(Map<String, String> rvHeaders) {
+        this.headers = rvHeaders;
     }
 
     public Map<String, String> getCookies() {
         return cookies;
     }
-
-    public void setHeaders(Map<String, String> rvHeaders) {
-        this.headers = rvHeaders;
-    }
-
     public void setCookies(Map<String, String> rvCookies) {
         this.cookies = rvCookies;
     }
@@ -100,11 +90,9 @@ public class EasyView extends JPanel implements ActionListener {
     public JPanel getPnlTaskOpt() {
         return pnlTaskOpt;
     }
-
     public CadTaskBrain getCadTaskBrain() {
         return cadTaskBrain;
     }
-
 
     /**
      * @param

@@ -15,38 +15,21 @@
  */
 package org.wisdom.tool.util;
 
-import java.io.*;
-import java.net.CookieHandler;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.Map.Entry;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.*;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,15 +39,22 @@ import org.wisdom.tool.model.Charsets;
 import org.wisdom.tool.model.HttpMethod;
 import org.wisdom.tool.model.HttpReq;
 import org.wisdom.tool.model.HttpRsp;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.URL;
-import java.net.URLEncoder;
-import javax.net.ssl.HttpsURLConnection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 /**
 * @ClassName: RESTClient 
 * @Description: Rest Client Class 
@@ -228,167 +218,185 @@ public final class RESTClient
      */
     public HttpRsp exec(HttpReq req)
     {
-        HttpRsp rsp = null;
-        HttpGet request = new HttpGet("https://login.cloudi.city/login/login.htm");
-        //Creating a BasicCookieStore object
-        BasicCookieStore cookieStore = new BasicCookieStore();
+        HttpRsp rsp = new HttpRsp();
+        //this happens when we hit the Cloud server.
+        if(!req.getUrl().contains("localhost")/*TODO others too?*/) {
+            HttpGet request = new HttpGet("https://login.cloudi.city/");
 
-        CredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(
-                AuthScope.ANY,
-                new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
-        );
+            //Creating a BasicCookieStore object
+            BasicCookieStore cookieStore = new BasicCookieStore();
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
+            );
 
-        //Creating an HttpClientBuilder object
-        HttpClientBuilder clientbuilder = HttpClients.custom();
-        //Setting default cookie store to the client builder object
-        clientbuilder.setDefaultCookieStore(cookieStore);
-        clientbuilder.setDefaultCredentialsProvider(provider);
+            //Creating an HttpClientBuilder object
+            HttpClientBuilder clientbuilder = HttpClients.custom();
+            //Setting default cookie store to the client builder object
+            clientbuilder.setDefaultCookieStore(cookieStore);
+            clientbuilder.setDefaultCredentialsProvider(provider);
 
-        try {
+            try {
 //            CloseableHttpClient httpClient = HttpClientBuilder.create()
 //                .setDefaultCredentialsProvider(provider)
 //                .build();
-            CloseableHttpClient httpClient = clientbuilder.build();
-            CloseableHttpResponse response = httpClient.execute(request);
+                CloseableHttpClient httpClient = clientbuilder.build();
+                CloseableHttpResponse response = httpClient.execute(request);
 
-            // 401 if wrong user/password
-            System.out.println(response.getStatusLine().getStatusCode());
+                // 401 if wrong user/password
+                System.out.println(response.getStatusLine().getStatusCode());
 
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                // return it as a String
-                String result = EntityUtils.toString(entity);
-                System.out.println(result);
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    // return it as a String
+                    String result = EntityUtils.toString(entity);
+                    System.out.println(result);
+                }
+
+                List list = cookieStore.getCookies();
+                String cookies = "";
+                System.out.println("list of cookies");
+                Iterator it = list.iterator();
+                if (it.hasNext()) {
+                    cookies += it;
+                    System.out.println(it.next());
+                }
+                BasicCookieStore reqCookieStore = new BasicCookieStore();
+                HttpClient client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
+                HttpUriRequest uriReq = RequestBuilder.get()
+                        .setUri("https://cad.next.dev.cloudi.city/")
+                        //.setHeader(HttpHeaders.CONTENT_TYPE, "text/html")
+                        .setHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+                        .setHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9,ko;q=0.8,ja;q=0.7")
+                        .setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate, br")
+                        .setHeader(HttpHeaders.CONNECTION, "keep-alive")
+                        .setHeader(HttpHeaders.HOST, "cad.next.dev.cloudi.city")
+                        .setHeader(HttpHeaders.UPGRADE, "1")
+                        .setHeader(HttpHeaders.TE, "Trailers")
+                        .setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
+                        .build();
+                HttpResponse resp = client.execute(uriReq);
+                InputStream is = resp.getEntity().getContent();
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(is));
+//            StringBuilder str = new StringBuilder();
+//            String line = null;
+//            while ((line = bufferedReader.readLine()) != null) {
+//                str.append(line + "\n");
+//            }
+//            System.out.println(resp.getStatusLine().toString());
+
+                list = cookieStore.getCookies();
+                cookies = "";
+                System.out.println("list of cookies");
+                it = list.iterator();
+                if (it.hasNext()) {
+                    cookies += it;
+                    System.out.println(it.next());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //request sent to the localhost
+        } else {
+            log.info("Start HTTP request: \r\n" + req);
+            long time = System.currentTimeMillis();
+
+            if (null == req)
+            {
+                rsp.setRawTxt("HTTP request argument is null. unable to process this HTTP request.");
+                log.error(rsp.getRawTxt());
+                return rsp;
             }
 
-            List list = cookieStore.getCookies();
-            String cookies = "";
-            System.out.println("list of cookies");
-            Iterator it = list.iterator();
-            if(it.hasNext()) {
-                cookies+= it;
-                System.out.println(it.next());
+            if (null == req.getMethod())
+            {
+                rsp.setRawTxt("HTTP method is empty. unable to process this HTTP request.");
+                log.error(rsp.getRawTxt());
+                return rsp;
             }
 
-            HttpClient client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
-            HttpUriRequest uriReq= RequestBuilder.get()
-                    .setUri("https://cad.next.dev.cloudi.city/rest/ECadServer/Hello")
-                    .setHeader(HttpHeaders.CONTENT_TYPE, "text/html")
-                    .setHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                    .setHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9,ko;q=0.8,ja;q=0.7")
-                    .setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
-                    .build();
-            HttpResponse resp = client.execute(uriReq);
-            InputStream is = resp.getEntity().getContent();
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(is));
-            StringBuilder str = new StringBuilder();
-
-            String line = null;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                str.append(line + "\n");
+            if (StringUtils.isEmpty(req.getUrl()))
+            {
+                rsp.setRawTxt("HTTP URL is empty. unable to process this HTTP request.");
+                log.error(rsp.getRawTxt());
+                return rsp;
             }
-            System.out.println(resp.getStatusLine().toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            try
+            {
+                /* Set HTTP method */
+                HttpRequestBase hrb = null;
+                if (HttpMethod.GET.equals(req.getMethod()))
+                {
+                    hrb = new HttpGet(req.getUrl());
+                }
+                else if (HttpMethod.POST.equals(req.getMethod()))
+                {
+                    hrb = new HttpPost(req.getUrl());
+                    ((HttpPost) hrb).setEntity(new StringEntity(req.getBody(), Charsets.UTF_8.getCname()));
+                }
+                else if (HttpMethod.PUT.equals(req.getMethod()))
+                {
+                    hrb = new HttpPut(req.getUrl());
+                    ((HttpPut) hrb).setEntity(new StringEntity(req.getBody(), Charsets.UTF_8.getCname()));
+                }
+                else if (HttpMethod.DELETE.equals(req.getMethod()))
+                {
+                    hrb = new HttpDelete(req.getUrl());
+                }
+                else
+                {
+                    rsp.setRawTxt("Unsupported HTTP method: " + req.getMethod());
+                    log.error(rsp.getRawTxt());
+                    return rsp;
+                }
+
+                /* Set HTTP headers */
+                if (MapUtils.isNotEmpty(req.getHeaders()))
+                {
+                    Map<String, String> hdrs = req.getHeaders();
+                    Set<Entry<String, String>> es = hdrs.entrySet();
+                    for (Entry<String, String> e : es)
+                    {
+                        hrb.setHeader(e.getKey(), e.getValue());
+                    }
+                }
+
+                /* Set HTTP cookies */
+                if (MapUtils.isNotEmpty(req.getCookies()))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    Map<String, String> cks = req.getCookies();
+                    Set<Entry<String, String>> es = cks.entrySet();
+                    for (Entry<String, String> e : es)
+                    {
+                        sb.append("; ")
+                                .append(e.getKey())
+                                .append("=")
+                                .append(e.getValue());
+                    }
+                    String hdrVal = sb.toString().replaceFirst("; ", "");
+                    hrb.setHeader(RESTConst.COOKIE, hdrVal);
+                    req.getHeaders().put(RESTConst.COOKIE, hdrVal);
+                }
+
+                /* Execute HTTP request */
+                hrb.setConfig(rc);
+
+                rsp = this.exec(hrb);
+                rsp.setRawTxt(req.toRawTxt() + rsp.toRawTxt());
+            }
+            catch(Throwable e)
+            {
+                rsp.setRawTxt("Failed to process this HTTP request: \r\n" + req + "\r\nResponse messages from server: \r\n" + e.getMessage());
+                log.error("Failed to process this HTTP request: \r\n" + req, e);
+            }
+
+            rsp.setTime(System.currentTimeMillis() - time);
+            log.info("Done HTTP request: \r\n" + rsp);
         }
-
-
-//        if (null == req)
-//        {
-//            rsp.setRawTxt("HTTP request argument is null. unable to process this HTTP request.");
-//            log.error(rsp.getRawTxt());
-//            return rsp;
-//        }
-//
-//        if (null == req.getMethod())
-//        {
-//            rsp.setRawTxt("HTTP method is empty. unable to process this HTTP request.");
-//            log.error(rsp.getRawTxt());
-//            return rsp;
-//        }
-//
-//        if (StringUtils.isEmpty(req.getUrl()))
-//        {
-//            rsp.setRawTxt("HTTP URL is empty. unable to process this HTTP request.");
-//            log.error(rsp.getRawTxt());
-//            return rsp;
-//        }
-//
-//        try
-//        {
-//            /* Set HTTP method */
-//            HttpRequestBase hrb = null;
-//            if (HttpMethod.GET.equals(req.getMethod()))
-//            {
-//                hrb = new HttpGet(req.getUrl());
-//            }
-//            else if (HttpMethod.POST.equals(req.getMethod()))
-//            {
-//                hrb = new HttpPost(req.getUrl());
-//                ((HttpPost) hrb).setEntity(new StringEntity(req.getBody(), Charsets.UTF_8.getCname()));
-//            }
-//            else if (HttpMethod.PUT.equals(req.getMethod()))
-//            {
-//                hrb = new HttpPut(req.getUrl());
-//                ((HttpPut) hrb).setEntity(new StringEntity(req.getBody(), Charsets.UTF_8.getCname()));
-//            }
-//            else if (HttpMethod.DELETE.equals(req.getMethod()))
-//            {
-//                hrb = new HttpDelete(req.getUrl());
-//            }
-//            else
-//            {
-//                rsp.setRawTxt("Unsupported HTTP method: " + req.getMethod());
-//                log.error(rsp.getRawTxt());
-//                return rsp;
-//            }
-//
-//            /* Set HTTP headers */
-//            if (MapUtils.isNotEmpty(req.getHeaders()))
-//            {
-//                Map<String, String> hdrs = req.getHeaders();
-//                Set<Entry<String, String>> es = hdrs.entrySet();
-//                for (Entry<String, String> e : es)
-//                {
-//                    hrb.setHeader(e.getKey(), e.getValue());
-//                }
-//            }
-//
-//            /* Set HTTP cookies */
-//            if (MapUtils.isNotEmpty(req.getCookies()))
-//            {
-//                StringBuilder sb = new StringBuilder();
-//                Map<String, String> cks = req.getCookies();
-//                Set<Entry<String, String>> es = cks.entrySet();
-//                for (Entry<String, String> e : es)
-//                {
-//                    sb.append("; ")
-//                      .append(e.getKey())
-//                      .append("=")
-//                      .append(e.getValue());
-//                }
-//                String hdrVal = sb.toString().replaceFirst("; ", "");
-//                hrb.setHeader(RESTConst.COOKIE, hdrVal);
-//                req.getHeaders().put(RESTConst.COOKIE, hdrVal);
-//            }
-//
-//            /* Execute HTTP request */
-//            hrb.setConfig(rc);
-//
-//            rsp = this.exec(hrb);
-//            rsp.setRawTxt(req.toRawTxt() + rsp.toRawTxt());
-//        }
-//        catch(Throwable e)
-//        {
-//            rsp.setRawTxt("Failed to process this HTTP request: \r\n" + req + "\r\nResponse messages from server: \r\n" + e.getMessage());
-//            log.error("Failed to process this HTTP request: \r\n" + req, e);
-//        }
-//
-//        rsp.setTime(System.currentTimeMillis() - time);
-//        log.info("Done HTTP request: \r\n" + rsp);
         return rsp;
     }
 

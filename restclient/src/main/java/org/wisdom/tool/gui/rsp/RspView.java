@@ -15,23 +15,16 @@
  */
 package org.wisdom.tool.gui.rsp;
 
-import java.awt.BorderLayout;
-import java.awt.image.BufferedImage;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wisdom.tool.constant.RESTConst;
 import org.wisdom.tool.model.HttpRsp;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /** 
 * @ClassName: RspView 
@@ -107,8 +100,8 @@ public class RspView extends JPanel
         pnlRaw = new RspTextPanel(RESTConst.RAW);
         tp.add(RESTConst.RAW, pnlRaw);
 
-        pnlPreview = new RspEditorPanel1(RESTConst.BODY);
-        tp.add(RESTConst.PREVIEW, pnlPreview);
+//        pnlPreview = new RspEditorPanel1(RESTConst.BODY);
+//        tp.add(RESTConst.PREVIEW, pnlPreview);
 
         this.add(tp, BorderLayout.CENTER);
         this.setBorder(BorderFactory.createTitledBorder(null, RESTConst.HTTP_RESPONSE, TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION));
@@ -127,7 +120,7 @@ public class RspView extends JPanel
         txtFldStat.setText(StringUtils.EMPTY);
         pnlRaw.getTxtAra().setText(StringUtils.EMPTY);
         pnlBody.getTxtAra().setText(StringUtils.EMPTY);
-        pnlPreview.setText("");
+        //pnlPreview.setText("");
         pnlHdr.getTabMdl().clear();
     }
 
@@ -149,7 +142,7 @@ public class RspView extends JPanel
         txtFldStat.setText(rsp.getStatus());
         pnlRaw.getTxtAra().setText(rsp.getRawTxt());
         pnlBody.getTxtAra().setText(rsp.getBody());
-        pnlPreview.setBodyHTML(rsp.getBody());
+        //pnlPreview.setBodyHTML(rsp.getBody());
 
         // Set headers
         pnlHdr.getTabMdl().clear();
