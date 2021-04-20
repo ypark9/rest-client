@@ -15,29 +15,7 @@
  */
 package org.wisdom.tool.gui.menu;
 
-import java.awt.Desktop;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Locale;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
-import javax.swing.SwingWorker;
-
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,6 +31,14 @@ import org.wisdom.tool.thread.RESTThdPool;
 import org.wisdom.tool.thread.TestThd;
 import org.wisdom.tool.util.RESTUtil;
 import org.wisdom.tool.util.TestUtil;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Locale;
 
 /** 
  * @ClassName: MenuBarView 
@@ -79,10 +65,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
     private HistTask task = null;
 
     private TestThd testThrd = null;
-
-    private DonateDialog dd = null;
-
-    private AboutDialog ad = null;
 
     class HistTask extends SwingWorker<Void, Void>
     {
@@ -140,7 +122,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         JMenu mnTest = new JMenu(RESTConst.TEST);
         JMenu mnDoc = new JMenu(StringUtils.capitalize(RESTConst.APIDOC));
         //JMenu mnTool = new JMenu(RESTConst.TOOLS);
-        JMenu mnHelp = new JMenu(RESTConst.HELP);
 
         // Menu of file
         JMenuItem miImport = new JMenuItem(RESTConst.IMPORT);
@@ -216,27 +197,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         mnDoc.add(miCreate);
         mnDoc.addSeparator();
         mnDoc.add(miOpen);
-        
-        // Menu of help
-        JMenuItem miContent = new JMenuItem(RESTConst.HELP_CONTENTS);
-        JMenuItem miIssue = new JMenuItem(RESTConst.REPORT_ISSUE);
-        JMenuItem miDonate = new JMenuItem(RESTConst.DONATE);
-        JMenuItem miAbout = new JMenuItem(RESTConst.ABOUT_TOOL);
-
-        miContent.addActionListener(this);
-        miIssue.addActionListener(this);
-        miDonate.addActionListener(this);
-        miAbout.addActionListener(this);
-
-        mnHelp.add(miContent);
-        mnHelp.add(miIssue);
-        mnHelp.addSeparator();
-//        mnHelp.add(miDonate);
-//        mnHelp.addSeparator();
-//        mnHelp.add(miAbout);
-
-        ad = new AboutDialog();
-        dd = new DonateDialog();
 
         // MenuBar
         mb = new JMenuBar();
@@ -246,7 +206,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         mb.add(mnTest);
         mb.add(mnDoc);
         // mb.add(mnTool);
-        mb.add(mnHelp);
         fc = new JFileChooser();
     }
 
@@ -402,7 +361,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
                           RESTConst.MSG_REPORT, 
                           RESTConst.TEST_REPORT);
         }
-
     }
 
     /**
@@ -429,64 +387,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
                           RESTConst.API_DOCUMENT);
         }
     }
-    
-    /**
-    * 
-    * @Title: helpPerformed 
-    * @Description: Help Menu Item Performed 
-    * @param @param item
-    * @return void
-    * @throws
-     */
-    private void helpPerformed(JMenuItem item)
-    {
-        if (RESTConst.ABOUT_TOOL.equals(item.getText()))
-        {
-            ad.setVisible(true);
-            UIUtil.setLocation(ad);
-            return;
-        }
-
-        if (RESTConst.HELP_CONTENTS.equals(item.getText()))
-        {
-            try
-            {
-                String path = RESTUtil.replacePath(RESTConst.HELP_DOC);
-                InputStream is = RESTUtil.getInputStream(RESTConst.HELP_DOC);
-                if (null == is)
-                {
-                    return;
-                }
-                FileUtils.copyInputStreamToFile(is, new File(path));
-                RESTUtil.close(is);
-                try
-                {
-                    Desktop.getDesktop().open(new File(path));
-                }
-                catch(Exception e)
-                {
-                    UIUtil.showMessage(RESTConst.MSG_HELP_FILE, RESTConst.HELP_CONTENTS);
-                }
-            }
-            catch(IOException e)
-            {
-                log.error("Failed to open help document.", e);
-            }
-            return;
-        }
-
-        if (RESTConst.REPORT_ISSUE.equals(item.getText()))
-        {
-            try
-            {
-                Desktop.getDesktop().browse(new URI(RESTConst.URL_ISSUE));
-            }
-            catch(Exception e)
-            {
-                UIUtil.showMessage(RESTConst.MSG_REPORT_ISSUE, RESTConst.REPORT_ISSUE);;
-            }
-        }
-    }
 
     public void actionPerformed(ActionEvent e)
     {
@@ -495,7 +395,6 @@ public class MenuBarView implements ActionListener, PropertyChangeListener
         this.editPerformed(item);
         this.testPerformed(item);
         this.apiDocPerformed(item);
-        this.helpPerformed(item);
     }
 
     public void propertyChange(PropertyChangeEvent evt)

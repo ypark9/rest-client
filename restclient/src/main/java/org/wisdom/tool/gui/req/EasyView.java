@@ -318,7 +318,7 @@ public class EasyView extends JPanel implements ActionListener {
             this.btnEasyStart.setEnabled(false);
 
             this.reqThd = new RESTThd();
-            this.reqThd.SetRequestMode(1);
+            this.reqThd.SetRequestMode(RESTConst.EASY_MODE);
             this.reqThd.setName(RESTConst.REQ_THREAD);
             this.reqThd.start();
 

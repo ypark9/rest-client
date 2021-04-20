@@ -15,23 +15,6 @@
  */
 package org.wisdom.tool.gui.req;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +24,14 @@ import org.wisdom.tool.gui.util.UIUtil;
 import org.wisdom.tool.model.HttpMethod;
 import org.wisdom.tool.model.HttpReq;
 import org.wisdom.tool.thread.RESTThd;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /** 
 * @ClassName: ReqView 
@@ -366,6 +357,7 @@ public class ReqView extends JPanel implements ActionListener
 
             this.reqThd = new RESTThd();
             this.reqThd.setName(RESTConst.REQ_THREAD);
+            this.reqThd.SetRequestMode(RESTConst.ADVANCED_MODE);
             this.reqThd.start();
 
             this.btnStart.setEnabled(true);

@@ -35,7 +35,7 @@ import org.wisdom.tool.util.RESTClient;
  */
 public class RESTThd extends Thread {
     private static Logger log = LogManager.getLogger(RESTThd.class);
-    private static int mode = 0;
+    private int mode = RESTConst.ADVANCED_MODE;
 
     public void interrupt() {
         try {
@@ -46,12 +46,16 @@ public class RESTThd extends Thread {
         }
     }
 
+    /**
+     *
+     * @param mode : int 0 - ADVANCED, 1 - EASY
+     */
     public void SetRequestMode(int mode) {
         this.mode = mode;
     }
 
     public void run() {
-        if (mode == 0) {
+        if (mode == RESTConst.ADVANCED_MODE) {
             ReqView rv = RESTView.getView().getReqView();
             UIUtil.submit(rv);
 
@@ -61,15 +65,7 @@ public class RESTThd extends Thread {
 
             rv.getProgressBar().setVisible(false);
             rv.getProgressBar().setIndeterminate(false);
-
-            String body = RESTView.getView().getRspView().getBodyView().getTxtAra().getText();
-            RESTView.getView().getTabPane().setSelectedIndex(1);
-            if (StringUtils.isNotEmpty(body)) {
-                RESTView.getView().getRspView().getTabPane().setSelectedIndex(0);
-            } else {
-                RESTView.getView().getRspView().getTabPane().setSelectedIndex(2);
-            }
-        } else if (mode == 1) {
+        } else if (mode == RESTConst.EASY_MODE) {
             EasyView easyView = RESTView.getView().getEasyView();
             UIUtil.CadTaskSubmit(easyView);
 
@@ -79,6 +75,14 @@ public class RESTThd extends Thread {
 
             easyView.getPnlServer().getProgressBar().setVisible(false);
             easyView.getPnlServer().getProgressBar().setIndeterminate(false);
+        }
+        String body = RESTView.getView().getRspView().getBodyView().getTxtAra().getText();
+        RESTView.getView().getTabPane().setSelectedIndex(0);
+        if (StringUtils.isNotEmpty(body)) {
+            RESTView.getView().getRspView().getTabPane().setSelectedIndex(0);
+            RESTView.getView().getTabPane().setSelectedIndex(2);
+        } else {
+            RESTView.getView().getRspView().getTabPane().setSelectedIndex(2);
         }
     }
 }

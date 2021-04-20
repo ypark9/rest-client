@@ -31,7 +31,10 @@ public class CadTaskBrain {
         url = urlToUpdate;
         if(!url.endsWith("/"))
             url += "/";
-        url += RESTConst.IA_CAD_URL;
+        if(url.contains(RESTConst.CLOUDI)) {
+            url += RESTConst.CLOUD_CAD_PATH;
+        } else
+            url += RESTConst.IA_CAD_SERVICE_PATH;
         System.out.println("Server address : " + url);
     }
 
@@ -69,10 +72,10 @@ public class CadTaskBrain {
         wcDoc = new WCDocument();
 
         //construct panel Setting to pass
-        panelSettingForServer = new PanelSetting("", "WebCenter", RESTConst.ID, RESTConst.PASSWORD, ConfigType.SERVER);
+        panelSettingForServer = new PanelSetting("", RESTConst.WEBCENTER, RESTConst.ID, RESTConst.PASSWORD, ConfigType.SERVER);
         panelSettingForServer.setProgressBar(true);
         panelSettingForInput = new PanelSetting(RESTConst.INPUT, "", RESTConst.PROJECT, RESTConst.DOCUMENT, ConfigType.INPUT);
-        panelSettingForOutput = new PanelSetting("Output", "Location", RESTConst.FOLDERPATH, RESTConst.FILENAME, ConfigType.OUTPUT);
+        panelSettingForOutput = new PanelSetting(RESTConst.OUTPUT, RESTConst.LOCATION, RESTConst.FOLDERPATH, RESTConst.FILENAME, ConfigType.OUTPUT);
 
         //init url to Hello task
         ChangeCadTask(CadTaskType.HELLO);

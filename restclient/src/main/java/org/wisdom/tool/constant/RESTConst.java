@@ -25,6 +25,9 @@ package org.wisdom.tool.constant;
 */
 public class RESTConst
 {
+    public static final int ADVANCED_MODE = 0;
+    public static final int EASY_MODE = 1;
+
     public static final String REST_CLIENT_VERSION = "ArtiosCAD API Tester V1.0";
 
     public static final String WORK = "work";
@@ -57,17 +60,9 @@ public class RESTConst
 
     public final static String REPORT_JQUERY = WISDOM_TOOL + "report/js/jquery-3.1.1.min.js";
 
-    public final static String WISDOM_TOOL_ORG = WISDOM_TOOL + "help/wisdomtool.org";
-
-    public final static String DONATION = WISDOM_TOOL + "help/wisdomtool.donate";
-
     public final static String WISDOM_TOOL_USAGE = WISDOM_TOOL + "help/wisdomtool.cli.usage";
 
     public static final String LOGO = WISDOM_TOOL + "image/logo.png";
-
-    public static final String DONATE_ICON = WISDOM_TOOL + "image/donate_pay.png";
-
-    public static final String HELP_DOC = WISDOM_TOOL + "doc/rest-client.pdf";
 
     public final static String APIDOC_BTSTRAP_JS = WISDOM_TOOL + "apidoc/js/bootstrap.js";
     
@@ -120,6 +115,8 @@ public class RESTConst
     public static final String CADTASK = "Cad API Task";
 
     public static final String ESVG = "ESVG";
+    public static final String SVG = "SVG";
+    public static final String SVG_EXT = ".svg";
 
     public static final String BODY = "Body";
 
@@ -228,12 +225,6 @@ public class RESTConst
 
     public static final String OPEN = "Open";
 
-    public static final String HELP_CONTENTS = "Help Contents";
-
-    public static final String REPORT_ISSUE = "Report Issue";
-
-    public static final String ABOUT_TOOL = "About Tool";
-
     public static final String API_DOCUMENT = "API Documentation";
 
     public static final String REQ_TAG = "== REQUEST  ==";
@@ -262,17 +253,11 @@ public class RESTConst
 
     public static final String RM_ALL = "Remove All";
 
-    public static final String UNASSERT_BODY = "Unassert Body";
-
     public static final String ASSERT_BODY = "Assert Body";
 
     public final static String LANG_EN = "en";
 
-    public final static String LANG_ZH = "zh";
-
     public final static Integer POOL_SIZE = 10;
-
-    public final static String REPORT_DIR = "report";
 
     public final static String LABEL_REPORT_DATA = "@REPORT_DATA@";
 
@@ -319,10 +304,6 @@ public class RESTConst
     public static final String PASTE = "Paste";
 
     public static final String HTML_LABEL = "</html>";
-
-    public static final String DONATE = "♥ Donate";
-
-    public static final String DONATE_BY_PAY = "Donate by Alipay or WeChat Pay";
 
     public static final String HTTP_HEAD = "http://";
 
@@ -387,6 +368,7 @@ public class RESTConst
     public final static int DIALOG_HEIGHT = 400;
 
     public final static String JSON = "JSON";
+    public final static String JSON_EXT = ".json";
 
     public final static String HIST_DETAIL = "History Detail";
 
@@ -432,7 +414,9 @@ public class RESTConst
     public final static String CLOUD_URL = "https://cad.next.dev.cloudi.city/rest/ECadServer/";
     public final static String CLOUD_LOGIN_URL = "https://login.cloudi.city/login/login.htm";
     public final static String LOCAL_URL = "http://localhost:8080/";
-    public final static String IA_CAD_URL = "ia-cad-service/rest/api/v1/ECadServer/";
+    public final static String IA_CAD_SERVICE_PATH = "ia-cad-service/rest/api/v1/ECadServer/";
+    public final static String CLOUD_CAD_PATH = "rest/api/v1/ECadServer/";
+    public final static String CLOUDI = "cloudi";
 
     public final static String WEBCENTER = "WebCenter";
     public final static String WCDOCUMENT = "WCDocument";
@@ -443,4 +427,7 @@ public class RESTConst
     public final static String LOAD_JSON_FILE = "Load JSON File";
     public final static String SAVE_JSON_FILE = "Save JSON File";
     public final static String RESET_EASY = "Reset Easy tab";
+
+    public static final String LOCATION = "Location";
+    public static final String OUTPUT = "Output";
 }

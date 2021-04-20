@@ -15,14 +15,11 @@
  */
 package org.wisdom.tool.model;
 
-import java.io.Serializable;
-import java.util.Locale;
-
-import org.wisdom.tool.constant.RESTConst;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
 
 /** 
 * @ClassName: Cause 
@@ -114,14 +111,8 @@ public class Cause implements Serializable
 
         sb.append("The cause of the error/failure: ");
         sb.append(code.getCode()).append(" -- ");
-        if (RESTConst.LANG_ZH.equalsIgnoreCase(Locale.getDefault().getLanguage()))
-        {
-            sb.append(msgZhCN);
-        }
-        else
-        {
-            sb.append(msgEnUS);
-        }
+        sb.append(msgEnUS);
+
 
         return sb.toString();
     }

@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wisdom.tool.cache.RESTCache;
 import org.wisdom.tool.constant.RESTConst;
+import org.wisdom.tool.constant.SECRET;
 import org.wisdom.tool.gui.RESTView;
 import org.wisdom.tool.gui.common.TabModel;
 import org.wisdom.tool.gui.req.EasyView;
@@ -33,7 +34,7 @@ import org.wisdom.tool.util.RESTClient;
 import org.wisdom.tool.util.RESTUtil;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -234,17 +235,46 @@ public class UIUtil
      * @return the location user picked
      */
     public static File getSaveLocation(Component parent) {
+        String extension = "", description = "";
+
+
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        //chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(parent instanceof EasyView) {
-            FileNameExtensionFilter filter = null;
             if(((EasyView) parent).getCadTaskBrain().getCadTaskType() == CadTaskType.GEN_SVG){
-                filter = new FileNameExtensionFilter("SVG format", "svg");
+                chooser.setFileFilter(new FileFilter() {
+
+                    public String getDescription() {
+                        return RESTConst.SVG;
+                    }
+
+                    public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        } else {
+                            String filename = f.getName().toLowerCase();
+                            return filename.endsWith(RESTConst.SVG_EXT) ;
+                        }
+                    }
+                });
             }else if(((EasyView) parent).getCadTaskBrain().getCadTaskType() == CadTaskType.GET_DESIGN_TYPE) {
-                filter = new FileNameExtensionFilter("JSON", "json");
+                chooser.setFileFilter(new FileFilter() {
+
+                    public String getDescription() {
+                        return RESTConst.JSON;
+                    }
+
+                    public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        } else {
+                            String filename = f.getName().toLowerCase();
+                            return filename.endsWith(RESTConst.JSON_EXT) ;
+                        }
+                    }
+                });
             }
-            if(filter != null)
-                chooser.setFileFilter(filter);
+
         }
 
         int result = chooser.showSaveDialog(parent);
@@ -414,25 +444,31 @@ public class UIUtil
             headers.put(RESTConst.ACCEPT, RESTConst.ACCEPT_TYPE);
         }
 
+        //going cloud!! need to put token in Const.
+        if(true) {
+            headers.put("EskoCloud-Token", SECRET.YOPA_ESKO_CLOUD_TOKEN);
+        }
+
         HttpReq req = new HttpReq(method, url, body, headers, cookies);
         HttpRsp rsp = null;
         try {
             rsp = RESTClient.getInstance().exec(req);
+
+            // if method is POST, let's prepare the output.
+            if(method.toString() == "POST") {
+                File file = getSaveLocation(easyView);
+                try {
+                    writeOutput(file,  rsp.getBody().toString());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println(req.toString());
         RESTView.getView().getRspView().setRspView(rsp);
         RESTView.getView().getHistView().setHistView(req, rsp);
-
-        //Let user knows that output is ready.
-        JOptionPane.showMessageDialog(easyView, "Output is successfully created. Check Response tab.");
-        File file = getSaveLocation(easyView);
-        try {
-            writeOutput(file,  rsp.getBody().toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -481,6 +517,11 @@ public class UIUtil
         if (null == headers.get(RESTConst.ACCEPT))
         {
             headers.put(RESTConst.ACCEPT, RESTConst.ACCEPT_TYPE);
+        }
+
+        //going cloud!! need to put token in Const.
+        if(true) {
+            headers.put("EskoCloud-Token", SECRET.YOPA_ESKO_CLOUD_TOKEN);
         }
 
         HttpReq req = new HttpReq(method, url, body, headers, cookies);

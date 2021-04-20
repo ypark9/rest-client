@@ -19,17 +19,15 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,8 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -219,87 +215,87 @@ public final class RESTClient
     public HttpRsp exec(HttpReq req)
     {
         HttpRsp rsp = new HttpRsp();
-        //this happens when we hit the Cloud server.
-        if(!req.getUrl().contains("localhost")/*TODO others too?*/) {
-            HttpGet request = new HttpGet("https://login.cloudi.city/");
-
-            //Creating a BasicCookieStore object
-            BasicCookieStore cookieStore = new BasicCookieStore();
-            CredentialsProvider provider = new BasicCredentialsProvider();
-            provider.setCredentials(
-                    AuthScope.ANY,
-                    new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
-            );
-
-            //Creating an HttpClientBuilder object
-            HttpClientBuilder clientbuilder = HttpClients.custom();
-            //Setting default cookie store to the client builder object
-            clientbuilder.setDefaultCookieStore(cookieStore);
-            clientbuilder.setDefaultCredentialsProvider(provider);
-
-            try {
-//            CloseableHttpClient httpClient = HttpClientBuilder.create()
-//                .setDefaultCredentialsProvider(provider)
-//                .build();
-                CloseableHttpClient httpClient = clientbuilder.build();
-                CloseableHttpResponse response = httpClient.execute(request);
-
-                // 401 if wrong user/password
-                System.out.println(response.getStatusLine().getStatusCode());
-
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    // return it as a String
-                    String result = EntityUtils.toString(entity);
-                    System.out.println(result);
-                }
-
-                List list = cookieStore.getCookies();
-                String cookies = "";
-                System.out.println("list of cookies");
-                Iterator it = list.iterator();
-                if (it.hasNext()) {
-                    cookies += it;
-                    System.out.println(it.next());
-                }
-                BasicCookieStore reqCookieStore = new BasicCookieStore();
-                HttpClient client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
-                HttpUriRequest uriReq = RequestBuilder.get()
-                        .setUri("https://cad.next.dev.cloudi.city/")
-                        //.setHeader(HttpHeaders.CONTENT_TYPE, "text/html")
-                        .setHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-                        .setHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9,ko;q=0.8,ja;q=0.7")
-                        .setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate, br")
-                        .setHeader(HttpHeaders.CONNECTION, "keep-alive")
-                        .setHeader(HttpHeaders.HOST, "cad.next.dev.cloudi.city")
-                        .setHeader(HttpHeaders.UPGRADE, "1")
-                        .setHeader(HttpHeaders.TE, "Trailers")
-                        .setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
-                        .build();
-                HttpResponse resp = client.execute(uriReq);
-                InputStream is = resp.getEntity().getContent();
-                BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(is));
-//            StringBuilder str = new StringBuilder();
-//            String line = null;
-//            while ((line = bufferedReader.readLine()) != null) {
-//                str.append(line + "\n");
+//        //this happens when we hit the Cloud server.
+//        if(!req.getUrl().contains("localhost")/*TODO others too?*/) {
+//            HttpGet request = new HttpGet("https://login.cloudi.city/");
+//
+//            //Creating a BasicCookieStore object
+//            BasicCookieStore cookieStore = new BasicCookieStore();
+//            CredentialsProvider provider = new BasicCredentialsProvider();
+//            provider.setCredentials(
+//                    AuthScope.ANY,
+//                    new UsernamePasswordCredentials("yoonsoo.park@esko.com", "yopaCloud21")
+//            );
+//
+//            //Creating an HttpClientBuilder object
+//            HttpClientBuilder clientbuilder = HttpClients.custom();
+//            //Setting default cookie store to the client builder object
+//            clientbuilder.setDefaultCookieStore(cookieStore);
+//            clientbuilder.setDefaultCredentialsProvider(provider);
+//
+//            try {
+////            CloseableHttpClient httpClient = HttpClientBuilder.create()
+////                .setDefaultCredentialsProvider(provider)
+////                .build();
+//                CloseableHttpClient httpClient = clientbuilder.build();
+//                CloseableHttpResponse response = httpClient.execute(request);
+//
+//                // 401 if wrong user/password
+//                System.out.println(response.getStatusLine().getStatusCode());
+//
+//                HttpEntity entity = response.getEntity();
+//                if (entity != null) {
+//                    // return it as a String
+//                    String result = EntityUtils.toString(entity);
+//                    System.out.println(result);
+//                }
+//
+//                List list = cookieStore.getCookies();
+//                String cookies = "";
+//                System.out.println("list of cookies");
+//                Iterator it = list.iterator();
+//                if (it.hasNext()) {
+//                    cookies += it;
+//                    System.out.println(it.next());
+//                }
+//                BasicCookieStore reqCookieStore = new BasicCookieStore();
+//                HttpClient client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
+//                HttpUriRequest uriReq = RequestBuilder.get()
+//                        .setUri("https://cad.next.dev.cloudi.city/")
+//                        //.setHeader(HttpHeaders.CONTENT_TYPE, "text/html")
+//                        .setHeader(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+//                        .setHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9,ko;q=0.8,ja;q=0.7")
+//                        .setHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate, br")
+//                        .setHeader(HttpHeaders.CONNECTION, "keep-alive")
+//                        .setHeader(HttpHeaders.HOST, "cad.next.dev.cloudi.city")
+//                        .setHeader(HttpHeaders.UPGRADE, "1")
+//                        .setHeader(HttpHeaders.TE, "Trailers")
+//                        .setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36")
+//                        .build();
+//                HttpResponse resp = client.execute(uriReq);
+//                InputStream is = resp.getEntity().getContent();
+//                BufferedReader bufferedReader = new BufferedReader(
+//                        new InputStreamReader(is));
+////            StringBuilder str = new StringBuilder();
+////            String line = null;
+////            while ((line = bufferedReader.readLine()) != null) {
+////                str.append(line + "\n");
+////            }
+////            System.out.println(resp.getStatusLine().toString());
+//
+//                list = cookieStore.getCookies();
+//                cookies = "";
+//                System.out.println("list of cookies");
+//                it = list.iterator();
+//                if (it.hasNext()) {
+//                    cookies += it;
+//                    System.out.println(it.next());
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
 //            }
-//            System.out.println(resp.getStatusLine().toString());
-
-                list = cookieStore.getCookies();
-                cookies = "";
-                System.out.println("list of cookies");
-                it = list.iterator();
-                if (it.hasNext()) {
-                    cookies += it;
-                    System.out.println(it.next());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //request sent to the localhost
-        } else {
+//            //request sent to the localhost
+//        } else {
             log.info("Start HTTP request: \r\n" + req);
             long time = System.currentTimeMillis();
 
@@ -396,7 +392,7 @@ public final class RESTClient
 
             rsp.setTime(System.currentTimeMillis() - time);
             log.info("Done HTTP request: \r\n" + rsp);
-        }
+ //       }
         return rsp;
     }
 
